@@ -13,8 +13,8 @@ PREFIX = sys.argv[2].rstrip("/") if len(sys.argv) > 2 else ""
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 for d in ("no", "en"): shutil.rmtree(os.path.join(OUT, d), ignore_errors=True)
 
-EXTRA = {"no": dict(more="Flere guider", site="Nettstedet", newest="Nyeste guide"),
-         "en": dict(more="More guides", site="The site", newest="Latest guide")}
+EXTRA = {"no": dict(more="Flere guider", site="Nettstedet", pause="Pause video", play="Spill video"),
+         "en": dict(more="More guides", site="The site", pause="Pause video", play="Play video")}
 IMGS = ["headlamp", "powerbank", "gps-watch", "shell-jacket", "layering", "footwear", "tent", "sleeping-bag", "sleeping-pad", "binoculars"]
 CATIMG = ["cat-camping", "cat-clothing", "cat-electronics", "cat-fishing"]
 MARK = '<svg aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M3 26 L12 9 L17 18 L21 12 L29 26 Z"/></svg>'
@@ -26,6 +26,14 @@ ARTS = [dict(cat=2, slug=dict(no="hodelykt-vinter", en="winter-headlamp"), no=fi
 
 def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else "hero")
 def src(name): return f"{PREFIX}/img/{name}.webp"
+def bgvideo(lang, name):
+    """Silent looping background clip with a still poster and a pause button. Falls back to the still image if the clip is missing."""
+    e = EXTRA[lang]
+    if not os.path.exists(f"{OUT}/video/{name}.mp4"):
+        return f'<img class="bg" src="{src(name)}" alt="" width="1344" height="768" fetchpriority="high">'
+    return (f'<video class="bg" autoplay muted loop playsinline preload="metadata" poster="{src("poster-" + name)}" aria-hidden="true"><source src="{PREFIX}/video/{name}.mp4" type="video/mp4"></video>'
+            f'<button class="vtoggle" type="button" data-pause="{e["pause"]}" data-play="{e["play"]}">{e["pause"]}</button>')
+JS = """<script>(()=>{const m=matchMedia('(prefers-reduced-motion: reduce)');document.querySelectorAll('video.bg').forEach(v=>{const b=v.parentElement.querySelector('.vtoggle');if(m.matches){v.removeAttribute('autoplay');v.pause()}const set=()=>{b.textContent=v.paused?b.dataset.play:b.dataset.pause};b.addEventListener('click',()=>{v.paused?v.play():v.pause()});v.addEventListener('play',set);v.addEventListener('pause',set);set()})})()</script>"""
 
 def paths(lang):
     x = X[lang]; r = PREFIX + x["root"]
@@ -45,7 +53,7 @@ def crumbs(lang, trail):
     items = [(t["home"], p["home"])] + trail
     return '<nav class="crumbs" aria-label="Breadcrumb">' + '<span aria-hidden="true">/</span>'.join(f'<a href="{h}">{n}</a>' for n, h in items) + "</nav>"
 
-def page(lang, key, title, desc, body, image="hero"):
+def page(lang, key, title, desc, body, image="hero", cls=""):
     t, x, e, p = b.L[lang], X[lang], EXTRA[lang], paths(lang)
     o = paths("en" if lang == "no" else "no")
     no, en = (p, o) if lang == "no" else (o, p)
@@ -69,11 +77,11 @@ def page(lang, key, title, desc, body, image="hero"):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=3">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=4">
 </head>
-<body>
+<body class="{cls}">
 <header class="top"><div class="wrap">
-<a class="brand" href="{p["home"]}"><span style="color:#1F5C4A;display:flex">{MARK}</span>Nordic Trail Gear</a>
+<a class="brand" href="{p["home"]}"><span class="mark">{MARK}</span>Nordic Trail Gear</a>
 <nav class="nav" aria-label="Main">{nav}</nav>
 <div class="lang"><a href="{no[key]}" lang="nb"{' aria-current="true"' if lang == "no" else ""}>NO</a><a href="{en[key]}" lang="en"{' aria-current="true"' if lang == "en" else ""}>EN</a></div>
 </div></header>
@@ -85,6 +93,7 @@ def page(lang, key, title, desc, body, image="hero"):
 <div><h2>{t["cats_h"]}</h2><ul>{catl}</ul></div>
 <div><h2>{e["site"]}</h2><ul><li><a href="{p["guides"]}">{x["all_h"]}</a></li>{info}</ul></div>
 </div></footer>
+{JS}
 </body>
 </html>'''
     d = OUT + p[key][len(PREFIX):]; os.makedirs(d, exist_ok=True)
@@ -98,7 +107,7 @@ for lang in ("no", "en"):
     f = newest[0]
     tiles = "".join(f'<a class="tile" href="{p[f"cat{i}"]}"><img src="{src(CATIMG[i])}" alt="" width="672" height="896" loading="lazy"><span><strong>{t["cats"][i][0]}</strong><small>{t["cats"][i][1]}</small></span></a>' for i in range(4))
     how = "".join(f"<div><h3>{a}</h3><p>{c}</p></div>" for a, c in t["how"])
-    body = f'''<section class="hero"><img src="{src("hero")}" alt="" width="1344" height="768" fetchpriority="high">
+    body = f'''<section class="hero">{bgvideo(lang, "hero")}
 <div class="wrap"><h1>{t["h1"]}</h1><p>{t["sub"]}</p>
 <div class="btns"><a class="btn btn-signal" href="{p["guides"]}">{t["cta"]}</a><a class="btn btn-line" href="{p["about"]}">{t["cta2"]}</a></div></div></section>
 <section class="sec"><div class="wrap"><h2>{t["cats_h"]}</h2><div class="tiles">{tiles}</div></div></section>
@@ -107,14 +116,14 @@ for lang in ("no", "en"):
 <span><span class="cat">{t["cats"][ARTS[f]["cat"]][0]}</span><h3>{ARTS[f][lang]["title"]}</h3><p>{ARTS[f][lang]["lead"]}</p></span></a>
 {rows(lang, newest[1:7])}</div></section>
 <section class="band"><div class="wrap"><h2>{t["how_h"]}</h2><div class="cols">{how}</div></div></section>'''
-    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], body))
+    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], body, cls="home"))
     for i in range(4):
         name = t["cats"][i][0]
         h1 = t["cat_h1"] if i == 2 else name
         sub = t["cat_sub"] if i == 2 else x["subs"][i]
         idx = [k for k in newest if ARTS[k]["cat"] == i]
         inner = rows(lang, idx, "full") if idx else f'<p class="note">{x["none"]}</p>'
-        body = f'''<section class="banner"><img src="{src(CATIMG[i])}" alt="" width="1344" height="768" fetchpriority="high">
+        body = f'''<section class="banner">{bgvideo(lang, CATIMG[i])}
 <div class="wrap">{crumbs(lang, [(name, p[f"cat{i}"])])}<h1>{h1}</h1><p>{sub}</p></div></section>
 <section class="sec" style="padding-top:40px"><div class="wrap"><h2>{t["more_h"]}</h2>{inner}<p class="note">{t["disc"]}</p></div></section>'''
         urls.append(page(lang, f"cat{i}", f"{h1} – Nordic Trail Gear", sub, body, CATIMG[i]))
