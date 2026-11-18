@@ -1,171 +1,151 @@
-"""Builds the whole site into the repo root. Run: python3 src/site.py https://mikkelfox76-ai.github.io /nordic-trail-gear
-Add a guide by appending to ARTS in src/articles.py, then run this and push."""
-import os, re, shutil, sys
+"""Builds the whole site into the repo root.
+Run from the repo root: python3 src/site.py https://mikkelfox76-ai.github.io /nordic-trail-gear
+Add a guide: append to ARTS in src/articles.py (both languages, optional "img"), put the image in img/, run this, commit, push.
+Texts: src/build.py (L: menu, front page, first guide), src/texts.py (X: URLs, category intros, footer, about). Design: css/style.css."""
+import os, sys, math, shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build as b
 import articles as A
+from texts import X
 
 BASE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
 PREFIX = sys.argv[2].rstrip("/") if len(sys.argv) > 2 else ""
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 for d in ("no", "en"): shutil.rmtree(os.path.join(OUT, d), ignore_errors=True)
-ACC = "#1F5C4A"
-b.ph = lambda t, h: ""
 
-X = {
- "no": dict(root=PREFIX + "/no/", cats=["tur-og-camping", "klaer-og-sko", "elektronikk", "jakt-og-fiske"], guides="guider", about="om",
-  art="hodelykt-vinter", soon="Kommer snart", none="Guider i denne kategorien kommer snart.", date="Oppdatert 18. november 2026",
-  all_h="Alle guider", desc="Guider til turutstyr, klær og elektronikk for nordisk friluftsliv.",
-  subs=["Telt, soveposer og kokeutstyr for alt fra helgetur til langtur.",
-        "Lag på lag som holder deg tørr og varm, fra ull innerst til skall ytterst.", None,
-        "Kikkerter, kniver og fiskeutstyr til sesongen som kommer."],
-  foot=["Om oss", "Annonsemerking", "Personvern", "Kontakt"], anchors=["", "#annonsemerking", "#personvern", "#kontakt"],
-  abt=[("Om Nordic Trail Gear", "Nordic Trail Gear lager guider til utstyr for friluftsliv i nordisk klima: turutstyr, klær og elektronikk. Vi sammenligner spesifikasjoner, priser og omtaler, og forklarer hva som betyr noe når du skal velge. Vi sier fra når vi ikke har prøvd et produkt selv."),
-         ("Annonsemerking", "Nettstedet finansieres med annonselenker. Når du klikker på en slik lenke og handler i nettbutikken, kan vi få provisjon. Prisen du betaler er den samme. Annonselenker er merket ved hver knapp, og rekkefølgen i guidene bestemmes av vurderingen vår, ikke av provisjonen."),
-         ("Personvern", "Vi samler ikke inn personopplysninger på dette nettstedet og bruker ikke egne sporingsverktøy. Når du klikker på en annonselenke, kan nettbutikken og annonsenettverket sette informasjonskapsler for å registrere at kjøpet kom herfra. Det reguleres av deres egne personvernerklæringer."),
-         ("Kontakt", 'Spørsmål, rettelser eller forslag til guider? Send e-post til <a href="mailto:nordictrailgear@gmail.com">nordictrailgear@gmail.com</a>.')]),
- "en": dict(root=PREFIX + "/en/", cats=["hiking-camping", "clothing-footwear", "electronics", "hunting-fishing"], guides="guides", about="about",
-  art="winter-headlamp", soon="Coming soon", none="Guides in this category are coming soon.", date="Updated 18 November 2026",
-  all_h="All guides", desc="Guides to hiking gear, clothing and electronics for Nordic outdoor life.",
-  subs=["Tents, sleeping bags and stoves for anything from a weekend out to a long trek.",
-        "Layers that keep you dry and warm, from wool next to skin to a shell on top.", None,
-        "Binoculars, knives and tackle for the season ahead."],
-  foot=["About", "Affiliate disclosure", "Privacy", "Contact"], anchors=["", "#disclosure", "#privacy", "#contact"],
-  abt=[("About Nordic Trail Gear", "Nordic Trail Gear publishes guides to outdoor gear for Nordic conditions: hiking equipment, clothing and electronics. We compare specs, prices and reviews, and explain what matters when you choose. We say so when we have not handled a product ourselves."),
-         ("Affiliate disclosure", "This site is funded by affiliate links. When you click one and buy from the store, we may earn a commission. The price you pay is the same. Affiliate links are labelled next to each button, and the order in our guides follows our assessment, not the commission."),
-         ("Privacy", "We do not collect personal data on this site and use no tracking tools of our own. When you click an affiliate link, the store and the affiliate network may set cookies to record that the purchase came from here. That is covered by their own privacy policies."),
-         ("Contact", 'Questions, corrections or ideas for guides? Email <a href="mailto:nordictrailgear@gmail.com">nordictrailgear@gmail.com</a>.')]),
-}
-
+EXTRA = {"no": dict(more="Flere guider", site="Nettstedet", newest="Nyeste guide"),
+         "en": dict(more="More guides", site="The site", newest="Latest guide")}
+IMGS = ["headlamp", "powerbank", "gps-watch", "shell-jacket", "layering", "footwear", "tent", "sleeping-bag", "sleeping-pad", "binoculars"]
+CATIMG = ["cat-camping", "cat-clothing", "cat-electronics", "cat-fishing"]
+MARK = '<svg aria-hidden="true" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M3 26 L12 9 L17 18 L21 12 L29 26 Z"/></svg>'
 
 def first(lang):
     t = b.L[lang]
     return dict(title=t["art_h1"], lead=t["lead"], short=t["short"], secs=t["look"])
 ARTS = [dict(cat=2, slug=dict(no="hodelykt-vinter", en="winter-headlamp"), no=first("no"), en=first("en"))] + A.ARTS
 
-IMGS = ["headlamp", "powerbank", "gps-watch", "shell-jacket", "layering", "footwear", "tent", "sleeping-bag", "sleeping-pad", "binoculars"]
-CATIMG = ["cat-camping", "cat-clothing", "cat-electronics", "cat-fishing"]
-def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else None)
-def img(name, alt, ratio="16 / 9", lazy=True):
-    if not name: return ""
-    return f'<img src="{PREFIX}/img/{name}.webp" alt="{alt}" width="1344" height="768"{" loading=\"lazy\"" if lazy else ""} style="width: 100%; height: auto; aspect-ratio: {ratio}; object-fit: cover; border-radius: 6px; display: block">'
+def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else "hero")
+def src(name): return f"{PREFIX}/img/{name}.webp"
 
 def paths(lang):
-    x = X[lang]; r = x["root"]
+    x = X[lang]; r = PREFIX + x["root"]
     p = {"home": r, "guides": f'{r}{x["guides"]}/', "about": f'{r}{x["about"]}/'}
     for i, c in enumerate(x["cats"]): p[f"cat{i}"] = f"{r}{c}/"
     for i, a in enumerate(ARTS): p[f"art{i}"] = f'{r}{x["guides"]}/{a["slug"][lang]}/'
     return p
 
-def cards(lang, only=None, limit=None):
-    t, p, out, n = b.L[lang], paths(lang), "", 0
-    for i in reversed(range(len(ARTS))):
-        a = ARTS[i]
-        if only is not None and a["cat"] != only: continue
-        if limit and n >= limit: break
-        n += 1
-        out += f"""<article style="background: #FFFFFF; border: 1px solid {b.LINE}; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
-{img(art_img(i), "")}
-<div style="font-size: 13px; font-weight: 600; color: {ACC}; text-transform: uppercase; letter-spacing: 0.06em">{t["cats"][a["cat"]][0]}</div>
-<h3 style="{b.HEAD}; font-size: 20px; line-height: 1.25">{a[lang]["title"]}</h3>
-<a href="{p[f"art{i}"]}" style="font-weight: 600; padding: 10px 0">{t["read"]} →</a></article>"""
-    return out
+def rows(lang, idx, cls=""):
+    t, p = b.L[lang], paths(lang)
+    out = "".join(f'''<a class="row" href="{p[f"art{i}"]}"><img src="{src(art_img(i))}" alt="" width="336" height="252" loading="lazy">
+<span><span class="cat">{t["cats"][ARTS[i]["cat"]][0]}</span><h3>{ARTS[i][lang]["title"]}</h3></span></a>''' for i in idx)
+    return f'<div class="rows {cls}">{out}</div>'
 
-def page(lang, key, title, desc, body):
-    t, x, p, o = b.L[lang], X[lang], paths(lang), paths("en" if lang == "no" else "no")
-    t = dict(t, foot=x["foot"])
-    html = b.header(t, "", lang) + body + b.footer(t)
-    m = {"Nordic Trail Gear": p["home"], t["home"]: p["home"], t["cta"]: p["guides"], t["cta2"]: p["about"], t["nav"][4]: p["guides"],
-         "Norsk": (p if lang == "no" else o)[key], "English": (p if lang == "en" else o)[key]}
-    for i in range(4): m[t["nav"][i]] = p[f"cat{i}"]; m[t["cats"][i][0]] = p[f"cat{i}"]
-    for name, a in zip(x["foot"], x["anchors"]): m[name] = p["about"] + a
-    def fix(mo):
-        inner = re.sub(r"<[^>]+>", "", mo.group(2)).strip()
-        for k in sorted(m, key=len, reverse=True):
-            if inner == k or inner.startswith(k): return f'<a href="{m[k]}"{mo.group(1)}>{mo.group(2)}</a>'
-        raise SystemExit(f"unmapped link: {inner!r} on {lang}/{key}")
-    html = re.sub(r'<a href="#"([^>]*)>(.*?)</a>', fix, html, flags=re.S).replace("{{accent}}", ACC)
-    alt = "".join(f'<link rel="alternate" hreflang="{hl}" href="{BASE}{pp[key]}">' for hl, pp in (("nb", p if lang == "no" else o), ("en", p if lang == "en" else o)))
-    doc = f"""<!doctype html>
+def crumbs(lang, trail):
+    t, p = b.L[lang], paths(lang)
+    items = [(t["home"], p["home"])] + trail
+    return '<nav class="crumbs" aria-label="Breadcrumb">' + '<span aria-hidden="true">/</span>'.join(f'<a href="{h}">{n}</a>' for n, h in items) + "</nav>"
+
+def page(lang, key, title, desc, body, image="hero"):
+    t, x, e, p = b.L[lang], X[lang], EXTRA[lang], paths(lang)
+    o = paths("en" if lang == "no" else "no")
+    no, en = (p, o) if lang == "no" else (o, p)
+    cur = lambda k: ' aria-current="page"' if key == k else ""
+    nav = "".join(f'<a href="{p[f"cat{i}"]}"{cur(f"cat{i}")}>{t["nav"][i]}</a>' for i in range(4)) + f'<a href="{p["guides"]}"{cur("guides")}>{t["nav"][4]}</a>'
+    catl = "".join(f'<li><a href="{p[f"cat{i}"]}">{t["nav"][i]}</a></li>' for i in range(4))
+    info = "".join(f'<li><a href="{p["about"]}{a}">{n}</a></li>' for n, a in zip(x["foot"], x["anchors"]))
+    doc = f'''<!doctype html>
 <html lang="{t["lang"]}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<link rel="canonical" href="{BASE}{p[key]}">{alt}
+<link rel="canonical" href="{BASE}{p[key]}">
+<link rel="alternate" hreflang="nb" href="{BASE}{no[key]}">
+<link rel="alternate" hreflang="en" href="{BASE}{en[key]}">
 <link rel="icon" href="{PREFIX}/favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="{title}">
-<meta property="og:image" content="{BASE}{PREFIX}/img/hero.webp">
+<meta property="og:image" content="{BASE}{src(image)}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
-<style>body{{margin:0}}a{{color:#12211C}}a:hover{{color:#1F5C4A}}</style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=3">
 </head>
 <body>
-<div style="background: #F4F6F5; color: #12211C; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.55; min-height: 100vh">
-{html}
-</div>
+<header class="top"><div class="wrap">
+<a class="brand" href="{p["home"]}"><span style="color:#1F5C4A;display:flex">{MARK}</span>Nordic Trail Gear</a>
+<nav class="nav" aria-label="Main">{nav}</nav>
+<div class="lang"><a href="{no[key]}" lang="nb"{' aria-current="true"' if lang == "no" else ""}>NO</a><a href="{en[key]}" lang="en"{' aria-current="true"' if lang == "en" else ""}>EN</a></div>
+</div></header>
+<main>
+{body}
+</main>
+<footer class="foot"><div class="wrap">
+<div><a class="brand" href="{p["home"]}">{MARK}Nordic Trail Gear</a><p>{t["disc"]}</p></div>
+<div><h2>{t["cats_h"]}</h2><ul>{catl}</ul></div>
+<div><h2>{e["site"]}</h2><ul><li><a href="{p["guides"]}">{x["all_h"]}</a></li>{info}</ul></div>
+</div></footer>
 </body>
-</html>"""
+</html>'''
     d = OUT + p[key][len(PREFIX):]; os.makedirs(d, exist_ok=True)
     open(d + "index.html", "w", encoding="utf-8").write(doc)
     return p[key]
 
 urls = []
-H2 = f"{b.HEAD}; font-size: 28px; margin-top: 16px"
-H1 = f"{b.HEAD}; font-size: clamp(30px, 5vw, 44px); line-height: 1.12"
-NARROW = "max-width: 760px; margin: 0 auto; padding: 24px 24px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px"
 for lang in ("no", "en"):
-    t, x = b.L[lang], X[lang]
-    b.guide_cards = lambda tt, _l=lang: cards(_l, limit=6)
-    hb = b.home(t).replace("</div>\n</div>\n</section>", "</div>\n" + img("hero", x["desc"], "21 / 9", lazy=False) + "\n</div>\n</section>", 1)
-    for i in range(4):
-        sp = f'<span style="{b.HEAD}; font-size: 20px">{t["cats"][i][0]}</span>'
-        assert sp in hb
-        hb = hb.replace(sp, img(CATIMG[i], "") + sp, 1)
-    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], hb))
-    disc = f'<p style="margin: 0; padding: 12px 16px; background: #E6EEEA; border-radius: 6px; font-size: 14px">{t["disc"]}</p>'
+    t, x, e, p = b.L[lang], X[lang], EXTRA[lang], paths(lang)
+    newest = list(reversed(range(len(ARTS))))
+    f = newest[0]
+    tiles = "".join(f'<a class="tile" href="{p[f"cat{i}"]}"><img src="{src(CATIMG[i])}" alt="" width="672" height="896" loading="lazy"><span><strong>{t["cats"][i][0]}</strong><small>{t["cats"][i][1]}</small></span></a>' for i in range(4))
+    how = "".join(f"<div><h3>{a}</h3><p>{c}</p></div>" for a, c in t["how"])
+    body = f'''<section class="hero"><img src="{src("hero")}" alt="" width="1344" height="768" fetchpriority="high">
+<div class="wrap"><h1>{t["h1"]}</h1><p>{t["sub"]}</p>
+<div class="btns"><a class="btn btn-signal" href="{p["guides"]}">{t["cta"]}</a><a class="btn btn-line" href="{p["about"]}">{t["cta2"]}</a></div></div></section>
+<section class="sec"><div class="wrap"><h2>{t["cats_h"]}</h2><div class="tiles">{tiles}</div></div></section>
+<section class="sec"><div class="wrap"><h2>{t["guides_h"]}</h2>
+<a class="feature" href="{p[f"art{f}"]}"><img src="{src(art_img(f))}" alt="" width="1344" height="840" loading="lazy">
+<span><span class="cat">{t["cats"][ARTS[f]["cat"]][0]}</span><h3>{ARTS[f][lang]["title"]}</h3><p>{ARTS[f][lang]["lead"]}</p></span></a>
+{rows(lang, newest[1:7])}</div></section>
+<section class="band"><div class="wrap"><h2>{t["how_h"]}</h2><div class="cols">{how}</div></div></section>'''
+    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], body))
     for i in range(4):
         name = t["cats"][i][0]
         h1 = t["cat_h1"] if i == 2 else name
         sub = t["cat_sub"] if i == 2 else x["subs"][i]
-        cs = cards(lang, only=i)
-        inner = f'<div style="{b.GRID3}">{cs}</div>' if cs else f'<p style="margin: 0; color: {b.MUTED}">{x["none"]}</p>'
-        body = f"""<main style="{b.WRAP}; padding-top: 24px; display: flex; flex-direction: column; gap: 24px">
-{b.crumbs(t, [name])}
-<h1 style="{b.HEAD}; font-size: clamp(32px, 5vw, 48px); line-height: 1.1">{h1}</h1>
-<p style="margin: 0; font-size: 18px; color: {b.MUTED}; max-width: 640px">{sub}</p>
-{img(CATIMG[i], h1, "21 / 9", lazy=False)}
-{disc}
-<h2 style="{H2}">{t["more_h"]}</h2>{inner}
-</main>"""
-        urls.append(page(lang, f"cat{i}", f"{h1} – Nordic Trail Gear", sub, body))
-    body = f"""<main style="{b.WRAP}; padding-top: 24px; display: flex; flex-direction: column; gap: 24px">
-{b.crumbs(t, [t["nav"][4]])}
-<h1 style="{b.HEAD}; font-size: clamp(32px, 5vw, 48px); line-height: 1.1">{x["all_h"]}</h1>
-<div style="{b.GRID3}">{cards(lang)}</div>
-</main>"""
+        idx = [k for k in newest if ARTS[k]["cat"] == i]
+        inner = rows(lang, idx, "full") if idx else f'<p class="note">{x["none"]}</p>'
+        body = f'''<section class="banner"><img src="{src(CATIMG[i])}" alt="" width="1344" height="768" fetchpriority="high">
+<div class="wrap">{crumbs(lang, [(name, p[f"cat{i}"])])}<h1>{h1}</h1><p>{sub}</p></div></section>
+<section class="sec" style="padding-top:40px"><div class="wrap"><h2>{t["more_h"]}</h2>{inner}<p class="note">{t["disc"]}</p></div></section>'''
+        urls.append(page(lang, f"cat{i}", f"{h1} – Nordic Trail Gear", sub, body, CATIMG[i]))
+    body = f'''<section class="plain"><div class="wrap">{crumbs(lang, [(t["nav"][4], p["guides"])])}<h1>{x["all_h"]}</h1>{rows(lang, newest, "full")}</div></section>'''
     urls.append(page(lang, "guides", f'{x["all_h"]} – Nordic Trail Gear', x["desc"], body))
     for i, a in enumerate(ARTS):
-        d = a[lang]
+        d, c = a[lang], a["cat"]
+        rel = ([k for k in newest if k != i and ARTS[k]["cat"] == c] + [k for k in newest if k != i and ARTS[k]["cat"] != c])[:4]
         short = "".join(f"<li>{s}</li>" for s in d["short"])
-        secs = "".join(f'<h2 style="{b.HEAD}; font-size: 24px; margin-top: 12px">{h}</h2><p style="margin: 0">{c}</p>' for h, c in d["secs"])
-        body = f"""<main style="{NARROW}">
-{b.crumbs(t, [t["nav"][a["cat"]], t["nav"][4]])}
-<h1 style="{H1}">{d["title"]}</h1>
-<div style="font-size: 14px; color: {b.MUTED}">{x["date"]}</div>
-<p style="margin: 0; font-size: 20px">{d["lead"]}</p>
-{img(art_img(i), d["title"], lazy=False)}
-<section style="border-top: 2px solid {b.INK}; padding-top: 16px">
-<h2 style="{b.HEAD}; font-size: 22px">{t["short_h"]}</h2>
-<ul style="margin: 12px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px">{short}</ul>
-</section>
-{secs}
-</main>"""
-        urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body))
+        secs = "".join(f"<h2>{h}</h2><p>{txt}</p>" for h, txt in d["secs"])
+        body = f'''<article class="article"><header><div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}
+<h1>{d["title"]}</h1><p class="date">{x["date"]}</p><p class="lede">{d["lead"]}</p></div></header>
+<div class="wrap"><img class="lead-img" src="{src(art_img(i))}" alt="" width="1344" height="756" fetchpriority="high"></div>
+<div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}<p class="note">{t["disc"]}</p></div></article>
+<section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
+        urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i)))
     ids = [a[1:] for a in x["anchors"]]
-    secs = "".join((f'<h1 style="{H1}">{h}</h1>' if i == 0 else f'<h2 id="{ids[i]}" style="{H2}">{h}</h2>') + f'<p style="margin: 0">{txt}</p>' for i, (h, txt) in enumerate(x["abt"]))
-    urls.append(page(lang, "about", x["abt"][0][0], x["abt"][0][1][:150], f'<main style="{NARROW}">{b.crumbs(t, [x["foot"][0]])}{secs}</main>'))
+    secs = "".join((f'<h1>{h}</h1><p style="margin-top:18px">{txt}</p>' if k == 0 else f'<h2 id="{ids[k]}">{h}</h2><p>{txt}</p>') for k, (h, txt) in enumerate(x["abt"]))
+    body = f'<section class="plain"><div class="wrap narrow body" style="padding-top:0">{crumbs(lang, [(x["foot"][0], p["about"])])}{secs}</div></section>'
+    urls.append(page(lang, "about", f'{x["abt"][0][0]}', x["abt"][0][1][:150], body))
+
+# contour-line pattern for the dark band
+rings = []
+for cx, cy, n in ((300, 220, 9), (1050, 120, 7), (820, 430, 8)):
+    for r in range(1, n + 1):
+        pts = []
+        for k in range(0, 361, 8):
+            a = math.radians(k); rr = r * 34 * (1 + 0.16 * math.sin(3 * a + cx) + 0.09 * math.sin(5 * a + r))
+            pts.append(f"{cx + rr * math.cos(a):.0f},{cy + rr * 0.72 * math.sin(a):.0f}")
+        rings.append(f'<polygon points="{" ".join(pts)}"/>')
+open(OUT + "/img/contour.svg", "w").write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 520" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="1.2">{"".join(rings)}</g></svg>')
 
 open(OUT + "/.nojekyll", "w").write("")
 open(OUT + "/index.html", "w").write('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Nordic Trail Gear</title><meta name="viewport" content="width=device-width, initial-scale=1"><script>location.replace(/^(nb|no|nn)/i.test(navigator.language||"")?"no/":"en/")</script><noscript><meta http-equiv="refresh" content="0; url=en/"></noscript></head><body><a href="en/">English</a> · <a href="no/">Norsk</a></body></html>')
