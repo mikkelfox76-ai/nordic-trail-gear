@@ -38,4 +38,10 @@ SEO = {
 "uforutsett-natt-ute": dict(
   no=("Uforutsett natt ute: slik holder du varmen | Nordic Trail Gear", "Når dagsturen blir til en uforutsett natt ute: slik klarer du deg med det du har i sekken, og dette holder deg varm til det lysner."),
   en=("Unplanned night outdoors: how to stay warm | Nordic Trail Gear", "When a day hike turns into an unplanned night outdoors: how to get through it with what is in your pack, and what keeps you warm until dawn.")),
+"fjellvettreglene-forklart": dict(
+  no=("Fjellvettreglene forklart: de ni reglene | Nordic Trail Gear", "Fjellvettreglene forklart, regel for regel, med film: hva de ni reglene betyr i praksis, og historien om påsken 1967 som de ble til etter."),
+  en=("The Norwegian mountain code explained | Nordic Trail Gear", "The Norwegian mountain code explained rule by rule, with film: what the nine rules mean in practice, and the Easter of 1967 that led to them.")),
+"pakkeliste-vintertur": dict(
+  no=("Pakkeliste for vintertur: alt i sekken | Nordic Trail Gear", "Pakkeliste for vintertur med film: klær, sikkerhetsutstyr, kart og kompass, mat og drikke. Dette skal alltid være med i sekken på fjellet."),
+  en=("Winter hiking packing list: the gear | Nordic Trail Gear", "Winter hiking packing list with film: clothing, safety gear, map and compass, food and drink. What should always be in your pack in the mountains.")),
 }

@@ -8,6 +8,7 @@ import build as b
 import articles as A
 import feature_snohule as FS
 import feature_natt as FN
+import feature_more as FM
 from texts import X
 from seo import SEO
 
@@ -27,7 +28,7 @@ def first(lang):
     return dict(title=t["art_h1"], lead=t["lead"], short=t["short"], secs=t["look"])
 ARTS = [dict(cat=2, slug=dict(no="hodelykt-vinter", en="winter-headlamp"), no=first("no"), en=first("en"))] + A.ARTS
 import os
-for _f in (FS.ART, FN.ART):
+for _f in [FS.ART, FN.ART] + FM.ARTS:
     if not _f.get('draft') or os.environ.get('NTG_DRAFT'): ARTS.append(_f)
 
 TODAY = datetime.date.today().isoformat()
@@ -100,7 +101,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=7">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=8">
 </head>
 <body class="{cls}">
 <header class="top"><div class="wrap">
