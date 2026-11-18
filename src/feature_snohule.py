@@ -15,7 +15,7 @@ def photo(name, cap, cls=""):
 
 def video(lang, cap, label):
     return f'''<figure class="film"><video controls playsinline preload="metadata" poster="{{P}}/img/snohule-natt.webp">
-<source src="{{P}}/video/snohule.mp4" type="video/mp4">
+<source src="{{P}}/video/snohule.mp4?v=2" type="video/mp4">
 <track kind="subtitles" src="{{P}}/video/snohule.{lang}.vtt" srclang="{'nb' if lang == 'no' else 'en'}" label="{label}"{' default' if lang == 'no' else ''}>
 </video><figcaption>{cap}</figcaption></figure>'''
 

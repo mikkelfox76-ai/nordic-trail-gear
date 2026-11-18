@@ -9,7 +9,7 @@ def fig(lang, k, cap): return f'<figure><img src="{{P}}/img/natt-fig{k}-{lang}.w
 def photo(name, cap): return f'<figure class="shot"><img src="{{P}}/img/natt-{name}.webp" alt="" width="1600" height="900" loading="lazy"><figcaption>{cap}</figcaption></figure>'
 def video(lang, cap, label):
     return f'''<figure class="film"><video controls playsinline preload="metadata" poster="{{P}}/img/natt-vindsekk.webp">
-<source src="{{P}}/video/natt-ute.mp4" type="video/mp4">
+<source src="{{P}}/video/natt-ute.mp4?v=2" type="video/mp4">
 <track kind="subtitles" src="{{P}}/video/natt-ute.{lang}.vtt" srclang="{'nb' if lang == 'no' else 'en'}" label="{label}"{' default' if lang == 'no' else ''}>
 </video><figcaption>{cap}</figcaption></figure>'''
 def srcs(): return "".join(f'<li><a href="{u}" rel="noopener">{n}</a></li>' for n, u in SRC)
