@@ -41,6 +41,13 @@ def first(lang):
     return dict(title=t["art_h1"], lead=t["lead"], short=t["short"], secs=t["look"])
 ARTS = [dict(cat=2, slug=dict(no="hodelykt-vinter", en="winter-headlamp"), no=first("no"), en=first("en"))] + A.ARTS
 
+IMGS = ["headlamp", "powerbank", "gps-watch", "shell-jacket", "layering", "footwear", "tent", "sleeping-bag", "sleeping-pad", "binoculars"]
+CATIMG = ["cat-camping", "cat-clothing", "cat-electronics", "cat-fishing"]
+def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else None)
+def img(name, alt, ratio="16 / 9", lazy=True):
+    if not name: return ""
+    return f'<img src="{PREFIX}/img/{name}.webp" alt="{alt}" width="1344" height="768"{" loading=\"lazy\"" if lazy else ""} style="width: 100%; height: auto; aspect-ratio: {ratio}; object-fit: cover; border-radius: 6px; display: block">'
+
 def paths(lang):
     x = X[lang]; r = x["root"]
     p = {"home": r, "guides": f'{r}{x["guides"]}/', "about": f'{r}{x["about"]}/'}
@@ -56,6 +63,7 @@ def cards(lang, only=None, limit=None):
         if limit and n >= limit: break
         n += 1
         out += f"""<article style="background: #FFFFFF; border: 1px solid {b.LINE}; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+{img(art_img(i), "")}
 <div style="font-size: 13px; font-weight: 600; color: {ACC}; text-transform: uppercase; letter-spacing: 0.06em">{t["cats"][a["cat"]][0]}</div>
 <h3 style="{b.HEAD}; font-size: 20px; line-height: 1.25">{a[lang]["title"]}</h3>
 <a href="{p[f"art{i}"]}" style="font-weight: 600; padding: 10px 0">{t["read"]} →</a></article>"""
@@ -105,7 +113,12 @@ NARROW = "max-width: 760px; margin: 0 auto; padding: 24px 24px 0; box-sizing: bo
 for lang in ("no", "en"):
     t, x = b.L[lang], X[lang]
     b.guide_cards = lambda tt, _l=lang: cards(_l, limit=6)
-    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], b.home(t)))
+    hb = b.home(t).replace("</div>\n</div>\n</section>", "</div>\n" + img("hero", x["desc"], "21 / 9", lazy=False) + "\n</div>\n</section>", 1)
+    for i in range(4):
+        sp = f'<span style="{b.HEAD}; font-size: 20px">{t["cats"][i][0]}</span>'
+        assert sp in hb
+        hb = hb.replace(sp, img(CATIMG[i], "") + sp, 1)
+    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], hb))
     disc = f'<p style="margin: 0; padding: 12px 16px; background: #E6EEEA; border-radius: 6px; font-size: 14px">{t["disc"]}</p>'
     for i in range(4):
         name = t["cats"][i][0]
@@ -117,6 +130,7 @@ for lang in ("no", "en"):
 {b.crumbs(t, [name])}
 <h1 style="{b.HEAD}; font-size: clamp(32px, 5vw, 48px); line-height: 1.1">{h1}</h1>
 <p style="margin: 0; font-size: 18px; color: {b.MUTED}; max-width: 640px">{sub}</p>
+{img(CATIMG[i], h1, "21 / 9", lazy=False)}
 {disc}
 <h2 style="{H2}">{t["more_h"]}</h2>{inner}
 </main>"""
@@ -136,6 +150,7 @@ for lang in ("no", "en"):
 <h1 style="{H1}">{d["title"]}</h1>
 <div style="font-size: 14px; color: {b.MUTED}">{x["date"]}</div>
 <p style="margin: 0; font-size: 20px">{d["lead"]}</p>
+{img(art_img(i), d["title"], lazy=False)}
 <section style="border-top: 2px solid {b.INK}; padding-top: 16px">
 <h2 style="{b.HEAD}; font-size: 22px">{t["short_h"]}</h2>
 <ul style="margin: 12px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px">{short}</ul>
