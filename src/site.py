@@ -6,6 +6,7 @@ import os, sys, math, shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build as b
 import articles as A
+import feature_snohule as FS
 from texts import X
 
 BASE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
@@ -23,6 +24,8 @@ def first(lang):
     t = b.L[lang]
     return dict(title=t["art_h1"], lead=t["lead"], short=t["short"], secs=t["look"])
 ARTS = [dict(cat=2, slug=dict(no="hodelykt-vinter", en="winter-headlamp"), no=first("no"), en=first("en"))] + A.ARTS
+import os
+if not FS.ART.get('draft') or os.environ.get('NTG_DRAFT'): ARTS.append(FS.ART)
 
 def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else "hero")
 def src(name): return f"{PREFIX}/img/{name}.webp"
@@ -77,7 +80,7 @@ def page(lang, key, title, desc, body, image="hero", cls=""):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=6">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=7">
 </head>
 <body class="{cls}">
 <header class="top"><div class="wrap">
@@ -134,6 +137,13 @@ for lang in ("no", "en"):
         rel = ([k for k in newest if k != i and ARTS[k]["cat"] == c] + [k for k in newest if k != i and ARTS[k]["cat"] != c])[:4]
         short = "".join(f"<li>{s}</li>" for s in d["short"])
         secs = "".join(f"<h2>{h}</h2><p>{txt}</p>" for h, txt in d["secs"])
+        if d.get("html"):
+            body = f'''<article class="article story-page"><section class="banner story-hero"><video class="bg" autoplay muted loop playsinline preload="metadata" poster="{src("snohule-storm")}" aria-hidden="true"><source src="{PREFIX}/video/snohule-hero.mp4" type="video/mp4"></video><button class="vtoggle" type="button" data-pause="{e["pause"]}" data-play="{e["play"]}">{e["pause"]}</button>
+<div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}<p class="kicker">{d["kicker"]}</p><h1>{d["title"]}</h1><p>{d["lead"]}</p><p class="date">{x["date"]}</p></div></section>
+{d["html"]().replace("{P}", PREFIX)}</article>
+<section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
+            urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i)))
+            continue
         body = f'''<article class="article"><header><div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}
 <h1>{d["title"]}</h1><p class="date">{x["date"]}</p><p class="lede">{d["lead"]}</p></div></header>
 <div class="wrap"><img class="lead-img" src="{src(art_img(i))}" alt="" width="1344" height="756" fetchpriority="high"></div>
