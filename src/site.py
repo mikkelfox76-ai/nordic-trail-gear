@@ -19,20 +19,22 @@ X = {
   subs=["Telt, soveposer og kokeutstyr for alt fra helgetur til langtur.",
         "Lag på lag som holder deg tørr og varm, fra ull innerst til skall ytterst.", None,
         "Kikkerter, kniver og fiskeutstyr til sesongen som kommer."],
-  foot=["Om oss", "Annonsemerking", "Personvern"], anchors=["", "#annonsemerking", "#personvern"],
+  foot=["Om oss", "Annonsemerking", "Personvern", "Kontakt"], anchors=["", "#annonsemerking", "#personvern", "#kontakt"],
   abt=[("Om Nordic Trail Gear", "Nordic Trail Gear lager guider til utstyr for friluftsliv i nordisk klima: turutstyr, klær og elektronikk. Vi sammenligner spesifikasjoner, priser og omtaler, og forklarer hva som betyr noe når du skal velge. Vi sier fra når vi ikke har prøvd et produkt selv."),
          ("Annonsemerking", "Nettstedet finansieres med annonselenker. Når du klikker på en slik lenke og handler i nettbutikken, kan vi få provisjon. Prisen du betaler er den samme. Annonselenker er merket ved hver knapp, og rekkefølgen i guidene bestemmes av vurderingen vår, ikke av provisjonen."),
-         ("Personvern", "Vi samler ikke inn personopplysninger på dette nettstedet og bruker ikke egne sporingsverktøy. Når du klikker på en annonselenke, kan nettbutikken og annonsenettverket sette informasjonskapsler for å registrere at kjøpet kom herfra. Det reguleres av deres egne personvernerklæringer.")]),
+         ("Personvern", "Vi samler ikke inn personopplysninger på dette nettstedet og bruker ikke egne sporingsverktøy. Når du klikker på en annonselenke, kan nettbutikken og annonsenettverket sette informasjonskapsler for å registrere at kjøpet kom herfra. Det reguleres av deres egne personvernerklæringer."),
+         ("Kontakt", 'Spørsmål, rettelser eller forslag til guider? Send e-post til <a href="mailto:nordictrailgear@gmail.com">nordictrailgear@gmail.com</a>.')]),
  "en": dict(root=PREFIX + "/en/", cats=["hiking-camping", "clothing-footwear", "electronics", "hunting-fishing"], guides="guides", about="about",
   art="winter-headlamp", soon="Coming soon", none="Guides in this category are coming soon.", date="Updated 18 November 2026",
   all_h="All guides", desc="Guides to hiking gear, clothing and electronics for Nordic outdoor life.",
   subs=["Tents, sleeping bags and stoves for anything from a weekend out to a long trek.",
         "Layers that keep you dry and warm, from wool next to skin to a shell on top.", None,
         "Binoculars, knives and tackle for the season ahead."],
-  foot=["About", "Affiliate disclosure", "Privacy"], anchors=["", "#disclosure", "#privacy"],
+  foot=["About", "Affiliate disclosure", "Privacy", "Contact"], anchors=["", "#disclosure", "#privacy", "#contact"],
   abt=[("About Nordic Trail Gear", "Nordic Trail Gear publishes guides to outdoor gear for Nordic conditions: hiking equipment, clothing and electronics. We compare specs, prices and reviews, and explain what matters when you choose. We say so when we have not handled a product ourselves."),
          ("Affiliate disclosure", "This site is funded by affiliate links. When you click one and buy from the store, we may earn a commission. The price you pay is the same. Affiliate links are labelled next to each button, and the order in our guides follows our assessment, not the commission."),
-         ("Privacy", "We do not collect personal data on this site and use no tracking tools of our own. When you click an affiliate link, the store and the affiliate network may set cookies to record that the purchase came from here. That is covered by their own privacy policies.")]),
+         ("Privacy", "We do not collect personal data on this site and use no tracking tools of our own. When you click an affiliate link, the store and the affiliate network may set cookies to record that the purchase came from here. That is covered by their own privacy policies."),
+         ("Contact", 'Questions, corrections or ideas for guides? Email <a href="mailto:nordictrailgear@gmail.com">nordictrailgear@gmail.com</a>.')]),
 }
 
 
@@ -92,6 +94,9 @@ def page(lang, key, title, desc, body):
 <title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{BASE}{p[key]}">{alt}
+<link rel="icon" href="{PREFIX}/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="{title}">
+<meta property="og:image" content="{BASE}{PREFIX}/img/hero.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <style>body{{margin:0}}a{{color:#12211C}}a:hover{{color:#1F5C4A}}</style>
@@ -158,7 +163,7 @@ for lang in ("no", "en"):
 {secs}
 </main>"""
         urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body))
-    ids = ["", x["anchors"][1][1:], x["anchors"][2][1:]]
+    ids = [a[1:] for a in x["anchors"]]
     secs = "".join((f'<h1 style="{H1}">{h}</h1>' if i == 0 else f'<h2 id="{ids[i]}" style="{H2}">{h}</h2>') + f'<p style="margin: 0">{txt}</p>' for i, (h, txt) in enumerate(x["abt"]))
     urls.append(page(lang, "about", x["abt"][0][0], x["abt"][0][1][:150], f'<main style="{NARROW}">{b.crumbs(t, [x["foot"][0]])}{secs}</main>'))
 
