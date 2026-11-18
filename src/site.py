@@ -33,7 +33,7 @@ def bgvideo(lang, name):
         return f'<img class="bg" src="{src(name)}" alt="" width="1344" height="768" fetchpriority="high">'
     return (f'<video class="bg" autoplay muted loop playsinline preload="metadata" poster="{src("poster-" + name)}" aria-hidden="true"><source src="{PREFIX}/video/{name}.mp4" type="video/mp4"></video>'
             f'<button class="vtoggle" type="button" data-pause="{e["pause"]}" data-play="{e["play"]}">{e["pause"]}</button>')
-JS = """<script>(()=>{const m=matchMedia('(prefers-reduced-motion: reduce)');document.querySelectorAll('video.bg').forEach(v=>{const b=v.parentElement.querySelector('.vtoggle');if(m.matches){v.removeAttribute('autoplay');v.pause()}const set=()=>{b.textContent=v.paused?b.dataset.play:b.dataset.pause};b.addEventListener('click',()=>{v.paused?v.play():v.pause()});v.addEventListener('play',set);v.addEventListener('pause',set);set()})})()</script>"""
+JS = """<script>(()=>{const m=matchMedia('(prefers-reduced-motion: reduce)');document.querySelectorAll('video.bg').forEach(v=>{const b=v.parentElement.querySelector('.vtoggle');if(m.matches){v.removeAttribute('autoplay');v.pause()}const set=()=>{b.textContent=v.paused?b.dataset.play:b.dataset.pause};b.addEventListener('click',()=>{v.paused?v.play():v.pause()});v.addEventListener('play',set);v.addEventListener('pause',set);set()});if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!m.matches){document.querySelectorAll('.tile,.row,.feature').forEach(c=>{const k=c.classList.contains('feature')?3:c.classList.contains('row')?6:9,s=(p,v)=>c.style.setProperty(p,v);c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;s('--rx',-y*k+'deg');s('--ry',x*k+'deg');s('--mx',x*100+50+'%');s('--my',y*100+50+'%');s('--px',-x*16+'px');s('--py',-y*16+'px')});c.addEventListener('pointerleave',()=>['--rx','--ry','--px','--py'].forEach(p=>c.style.removeProperty(p)))})}})()</script>"""
 
 def paths(lang):
     x = X[lang]; r = PREFIX + x["root"]
@@ -77,7 +77,7 @@ def page(lang, key, title, desc, body, image="hero", cls=""):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=5">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=6">
 </head>
 <body class="{cls}">
 <header class="top"><div class="wrap">
@@ -155,6 +155,7 @@ for cx, cy, n in ((300, 220, 9), (1050, 120, 7), (820, 430, 8)):
             pts.append(f"{cx + rr * math.cos(a):.0f},{cy + rr * 0.72 * math.sin(a):.0f}")
         rings.append(f'<polygon points="{" ".join(pts)}"/>')
 open(OUT + "/img/contour.svg", "w").write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 520" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="1.2">{"".join(rings)}</g></svg>')
+open(OUT + "/img/contour-dark.svg", "w").write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 520" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1F5C4A" stroke-opacity=".13" stroke-width="1.2">{"".join(rings)}</g></svg>')
 
 open(OUT + "/.nojekyll", "w").write("")
 open(OUT + "/index.html", "w").write('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Nordic Trail Gear</title><meta name="viewport" content="width=device-width, initial-scale=1"><script>location.replace(/^(nb|no|nn)/i.test(navigator.language||"")?"no/":"en/")</script><noscript><meta http-equiv="refresh" content="0; url=en/"></noscript></head><body><a href="en/">English</a> · <a href="no/">Norsk</a></body></html>')
