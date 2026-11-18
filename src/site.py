@@ -1,8 +1,8 @@
 """Builds the whole site into the repo root.
 Run from the repo root: python3 src/site.py https://mikkelfox76-ai.github.io /nordic-trail-gear
-Add a guide: append to ARTS in src/articles.py (both languages, optional "img"), put the image in img/, run this, commit, push.
+Add a guide: append to ARTS in src/articles.py (both languages, optional "img", and "date": "YYYY-MM-DD" for the publish date; "updated" when revised), put the image in img/, run this, commit, push.
 Texts: src/build.py (L: menu, front page, first guide), src/texts.py (X: URLs, category intros, footer, about). Design: css/style.css."""
-import os, sys, math, shutil
+import os, sys, math, shutil, json, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build as b
 import articles as A
@@ -29,6 +29,15 @@ import os
 for _f in (FS.ART, FN.ART):
     if not _f.get('draft') or os.environ.get('NTG_DRAFT'): ARTS.append(_f)
 
+TODAY = datetime.date.today().isoformat()
+LAUNCH = "2026-11-18"
+ORG = {"@type": "Organization", "name": "Nordic Trail Gear", "url": BASE + "/", "logo": f"{BASE}{PREFIX}/img/logo.png", "sameAs": ["https://www.facebook.com/profile.php?id=61596897741938"]}
+def ld(*objs):
+    """JSON-LD script tags (structured data for search engines)."""
+    return "".join('<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", **o}, ensure_ascii=False).replace("</", "<\\/") + "</script>\n" for o in objs)
+def crumb_ld(lang, trail):
+    items = [(b.L[lang]["home"], paths(lang)["home"])] + trail
+    return {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": k + 1, "name": n, "item": BASE + h} for k, (n, h) in enumerate(items)]}
 def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else "hero")
 def src(name): return f"{PREFIX}/img/{name}.webp"
 def bgvideo(lang, name):
@@ -58,7 +67,7 @@ def crumbs(lang, trail):
     items = [(t["home"], p["home"])] + trail
     return '<nav class="crumbs" aria-label="Breadcrumb">' + '<span aria-hidden="true">/</span>'.join(f'<a href="{h}">{n}</a>' for n, h in items) + "</nav>"
 
-def page(lang, key, title, desc, body, image="hero", cls=""):
+def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="website"):
     t, x, e, p = b.L[lang], X[lang], EXTRA[lang], paths(lang)
     o = paths("en" if lang == "no" else "no")
     no, en = (p, o) if lang == "no" else (o, p)
@@ -76,9 +85,17 @@ def page(lang, key, title, desc, body, image="hero", cls=""):
 <link rel="canonical" href="{BASE}{p[key]}">
 <link rel="alternate" hreflang="nb" href="{BASE}{no[key]}">
 <link rel="alternate" hreflang="en" href="{BASE}{en[key]}">
+<link rel="alternate" hreflang="x-default" href="{BASE}{en[key]}">
 <link rel="icon" href="{PREFIX}/favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
 <meta property="og:image" content="{BASE}{src(image)}">
+<meta property="og:url" content="{BASE}{p[key]}">
+<meta property="og:type" content="{kind}">
+<meta property="og:site_name" content="Nordic Trail Gear">
+<meta property="og:locale" content="{"nb_NO" if lang == "no" else "en_GB"}">
+<meta name="twitter:card" content="summary_large_image">
+{data}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
@@ -106,6 +123,7 @@ def page(lang, key, title, desc, body, image="hero", cls=""):
     return p[key]
 
 urls = []
+dates = {}
 for lang in ("no", "en"):
     t, x, e, p = b.L[lang], X[lang], EXTRA[lang], paths(lang)
     newest = list(reversed(range(len(ARTS))))
@@ -121,7 +139,7 @@ for lang in ("no", "en"):
 <span><span class="cat">{t["cats"][ARTS[f]["cat"]][0]}</span><h3>{ARTS[f][lang]["title"]}</h3><p>{ARTS[f][lang]["lead"]}</p></span></a>
 {rows(lang, newest[1:7])}</div></section>
 <section class="band"><div class="wrap"><h2>{t["how_h"]}</h2><div class="cols">{how}</div></div></section>'''
-    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], body, cls="home"))
+    urls.append(page(lang, "home", f'Nordic Trail Gear – {t["tag"]}', x["desc"], body, cls="home", data=ld({"@type": "WebSite", "name": "Nordic Trail Gear", "url": BASE + p["home"], "inLanguage": t["lang"], "publisher": ORG}, ORG)))
     for i in range(4):
         name = t["cats"][i][0]
         h1 = t["cat_h1"] if i == 2 else name
@@ -131,12 +149,15 @@ for lang in ("no", "en"):
         body = f'''<section class="banner">{bgvideo(lang, CATIMG[i])}
 <div class="wrap">{crumbs(lang, [(name, p[f"cat{i}"])])}<h1>{h1}</h1><p>{sub}</p></div></section>
 <section class="sec" style="padding-top:40px"><div class="wrap"><h2>{t["more_h"]}</h2>{inner}<p class="note">{t["disc"]}</p></div></section>'''
-        urls.append(page(lang, f"cat{i}", f"{h1} – Nordic Trail Gear", sub, body, CATIMG[i]))
+        urls.append(page(lang, f"cat{i}", f"{h1} – Nordic Trail Gear", sub, body, CATIMG[i], data=ld(crumb_ld(lang, [(name, p[f"cat{i}"])]))))
     body = f'''<section class="plain"><div class="wrap">{crumbs(lang, [(t["nav"][4], p["guides"])])}<h1>{x["all_h"]}</h1>{rows(lang, newest, "full")}</div></section>'''
-    urls.append(page(lang, "guides", f'{x["all_h"]} – Nordic Trail Gear', x["desc"], body))
+    urls.append(page(lang, "guides", f'{x["all_h"]} – Nordic Trail Gear', x["desc"], body, data=ld(crumb_ld(lang, [(t["nav"][4], p["guides"])]))))
     for i, a in enumerate(ARTS):
         d, c = a[lang], a["cat"]
         rel = ([k for k in newest if k != i and ARTS[k]["cat"] == c] + [k for k in newest if k != i and ARTS[k]["cat"] != c])[:4]
+        day = a.get("date", LAUNCH); dates[p[f"art{i}"]] = a.get("updated", day)
+        data = ld({"@type": "Article", "headline": d["title"], "description": d["lead"], "image": [BASE + src(art_img(i))], "datePublished": day, "dateModified": a.get("updated", day), "inLanguage": t["lang"], "author": ORG, "publisher": ORG, "mainEntityOfPage": BASE + p[f"art{i}"]},
+                  crumb_ld(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"]), (d["title"], p[f"art{i}"])]))
         short = "".join(f"<li>{s}</li>" for s in d["short"])
         secs = "".join(f"<h2>{h}</h2><p>{txt}</p>" for h, txt in d["secs"])
         if d.get("html"):
@@ -144,14 +165,14 @@ for lang in ("no", "en"):
 <div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}<p class="kicker">{d["kicker"]}</p><h1>{d["title"]}</h1><p>{d["lead"]}</p><p class="date">{x["date"]}</p></div></section>
 {d["html"]().replace("{P}", PREFIX)}</article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
-            urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i)))
+            urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i), data=data, kind="article"))
             continue
         body = f'''<article class="article"><header><div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}
 <h1>{d["title"]}</h1><p class="date">{x["date"]}</p><p class="lede">{d["lead"]}</p></div></header>
 <div class="wrap"><img class="lead-img" src="{src(art_img(i))}" alt="" width="1344" height="756" fetchpriority="high"></div>
 <div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}<p class="note">{t["disc"]}</p></div></article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
-        urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i)))
+        urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i), data=data, kind="article"))
     ids = [a[1:] for a in x["anchors"]]
     secs = "".join((f'<h1>{h}</h1><p style="margin-top:18px">{txt}</p>' if k == 0 else f'<h2 id="{ids[k]}">{h}</h2><p>{txt}</p>') for k, (h, txt) in enumerate(x["abt"]))
     body = f'<section class="plain"><div class="wrap narrow body" style="padding-top:0">{crumbs(lang, [(x["foot"][0], p["about"])])}{secs}</div></section>'
@@ -171,6 +192,6 @@ open(OUT + "/img/contour-dark.svg", "w").write(f'<svg xmlns="http://www.w3.org/2
 
 open(OUT + "/.nojekyll", "w").write("")
 open(OUT + "/index.html", "w").write('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Nordic Trail Gear</title><meta name="viewport" content="width=device-width, initial-scale=1"><script>location.replace(/^(nb|no|nn)/i.test(navigator.language||"")?"no/":"en/")</script><noscript><meta http-equiv="refresh" content="0; url=en/"></noscript></head><body><a href="en/">English</a> · <a href="no/">Norsk</a></body></html>')
-open(OUT + "/sitemap.xml", "w").write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "".join(f"<url><loc>{BASE}{u}</loc></url>" for u in urls) + "</urlset>")
+open(OUT + "/sitemap.xml", "w").write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{dates.get(u, TODAY)}</lastmod></url>" for u in urls) + "</urlset>")
 open(OUT + "/robots.txt", "w").write(f"User-agent: *\nAllow: /\nSitemap: {BASE}{PREFIX}/sitemap.xml\n")
 print(len(urls), "pages")
