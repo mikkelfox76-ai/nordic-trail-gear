@@ -91,7 +91,7 @@ def page(lang, key, title, desc, body, image="hero", cls=""):
 <footer class="foot"><div class="wrap">
 <div><a class="brand" href="{p["home"]}">{MARK}Nordic Trail Gear</a><p>{t["disc"]}</p></div>
 <div><h2>{t["cats_h"]}</h2><ul>{catl}</ul></div>
-<div><h2>{e["site"]}</h2><ul><li><a href="{p["guides"]}">{x["all_h"]}</a></li>{info}</ul></div>
+<div><h2>{e["site"]}</h2><ul><li><a href="{p["guides"]}">{x["all_h"]}</a></li>{info}<li><a href="https://www.facebook.com/profile.php?id=61596897741938" rel="me noopener">Facebook</a></li></ul></div>
 </div></footer>
 {JS}
 </body>
