@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build as b
 import articles as A
 import feature_snohule as FS
+import feature_natt as FN
 from texts import X
 
 BASE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
@@ -25,7 +26,8 @@ def first(lang):
     return dict(title=t["art_h1"], lead=t["lead"], short=t["short"], secs=t["look"])
 ARTS = [dict(cat=2, slug=dict(no="hodelykt-vinter", en="winter-headlamp"), no=first("no"), en=first("en"))] + A.ARTS
 import os
-if not FS.ART.get('draft') or os.environ.get('NTG_DRAFT'): ARTS.append(FS.ART)
+for _f in (FS.ART, FN.ART):
+    if not _f.get('draft') or os.environ.get('NTG_DRAFT'): ARTS.append(_f)
 
 def art_img(i): return ARTS[i].get("img") or (IMGS[i] if i < len(IMGS) else "hero")
 def src(name): return f"{PREFIX}/img/{name}.webp"
@@ -138,7 +140,7 @@ for lang in ("no", "en"):
         short = "".join(f"<li>{s}</li>" for s in d["short"])
         secs = "".join(f"<h2>{h}</h2><p>{txt}</p>" for h, txt in d["secs"])
         if d.get("html"):
-            body = f'''<article class="article story-page"><section class="banner story-hero"><video class="bg" autoplay muted loop playsinline preload="metadata" poster="{src("snohule-storm")}" aria-hidden="true"><source src="{PREFIX}/video/snohule-hero.mp4" type="video/mp4"></video><button class="vtoggle" type="button" data-pause="{e["pause"]}" data-play="{e["play"]}">{e["pause"]}</button>
+            body = f'''<article class="article story-page"><section class="banner story-hero"><video class="bg" autoplay muted loop playsinline preload="metadata" poster="{src(d.get("hero", ("snohule-hero", "snohule-storm"))[1])}" aria-hidden="true"><source src="{PREFIX}/video/{d.get("hero", ("snohule-hero", "snohule-storm"))[0]}.mp4" type="video/mp4"></video><button class="vtoggle" type="button" data-pause="{e["pause"]}" data-play="{e["play"]}">{e["pause"]}</button>
 <div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}<p class="kicker">{d["kicker"]}</p><h1>{d["title"]}</h1><p>{d["lead"]}</p><p class="date">{x["date"]}</p></div></section>
 {d["html"]().replace("{P}", PREFIX)}</article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
