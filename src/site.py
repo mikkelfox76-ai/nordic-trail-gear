@@ -9,6 +9,7 @@ import articles as A
 import feature_snohule as FS
 import feature_natt as FN
 from texts import X
+from seo import SEO
 
 BASE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
 PREFIX = sys.argv[2].rstrip("/") if len(sys.argv) > 2 else ""
@@ -155,8 +156,9 @@ for lang in ("no", "en"):
     for i, a in enumerate(ARTS):
         d, c = a[lang], a["cat"]
         rel = ([k for k in newest if k != i and ARTS[k]["cat"] == c] + [k for k in newest if k != i and ARTS[k]["cat"] != c])[:4]
+        st, sd = SEO.get(a["slug"]["no"], {}).get(lang) or (f'{d["title"]} – Nordic Trail Gear', d["lead"])
         day = a.get("date", LAUNCH); dates[p[f"art{i}"]] = a.get("updated", day)
-        data = ld({"@type": "Article", "headline": d["title"], "description": d["lead"], "image": [BASE + src(art_img(i))], "datePublished": day, "dateModified": a.get("updated", day), "inLanguage": t["lang"], "author": ORG, "publisher": ORG, "mainEntityOfPage": BASE + p[f"art{i}"]},
+        data = ld({"@type": "Article", "headline": d["title"], "description": sd, "image": [BASE + src(art_img(i))], "datePublished": day, "dateModified": a.get("updated", day), "inLanguage": t["lang"], "author": ORG, "publisher": ORG, "mainEntityOfPage": BASE + p[f"art{i}"]},
                   crumb_ld(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"]), (d["title"], p[f"art{i}"])]))
         short = "".join(f"<li>{s}</li>" for s in d["short"])
         secs = "".join(f"<h2>{h}</h2><p>{txt}</p>" for h, txt in d["secs"])
@@ -165,14 +167,14 @@ for lang in ("no", "en"):
 <div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}<p class="kicker">{d["kicker"]}</p><h1>{d["title"]}</h1><p>{d["lead"]}</p><p class="date">{x["date"]}</p></div></section>
 {d["html"]().replace("{P}", PREFIX)}</article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
-            urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i), data=data, kind="article"))
+            urls.append(page(lang, f"art{i}", st, sd, body, art_img(i), data=data, kind="article"))
             continue
         body = f'''<article class="article"><header><div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}
 <h1>{d["title"]}</h1><p class="date">{x["date"]}</p><p class="lede">{d["lead"]}</p></div></header>
 <div class="wrap"><img class="lead-img" src="{src(art_img(i))}" alt="" width="1344" height="756" fetchpriority="high"></div>
 <div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}<p class="note">{t["disc"]}</p></div></article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
-        urls.append(page(lang, f"art{i}", f'{d["title"]} – Nordic Trail Gear', d["lead"], body, art_img(i), data=data, kind="article"))
+        urls.append(page(lang, f"art{i}", st, sd, body, art_img(i), data=data, kind="article"))
     ids = [a[1:] for a in x["anchors"]]
     secs = "".join((f'<h1>{h}</h1><p style="margin-top:18px">{txt}</p>' if k == 0 else f'<h2 id="{ids[k]}">{h}</h2><p>{txt}</p>') for k, (h, txt) in enumerate(x["abt"]))
     body = f'<section class="plain"><div class="wrap narrow body" style="padding-top:0">{crumbs(lang, [(x["foot"][0], p["about"])])}{secs}</div></section>'
