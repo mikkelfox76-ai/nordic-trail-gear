@@ -11,6 +11,7 @@ import feature_natt as FN
 import feature_more as FM
 from texts import X
 from seo import SEO
+import products as PR
 
 BASE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
 PREFIX = sys.argv[2].rstrip("/") if len(sys.argv) > 2 else ""
@@ -101,7 +102,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=8">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=9">
 </head>
 <body class="{cls}">
 <header class="top"><div class="wrap">
@@ -173,7 +174,7 @@ for lang in ("no", "en"):
         body = f'''<article class="article"><header><div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}
 <h1>{d["title"]}</h1><p class="date">{x["date"]}</p><p class="lede">{d["lead"]}</p></div></header>
 <div class="wrap"><img class="lead-img" src="{src(art_img(i))}" alt="" width="1344" height="756" fetchpriority="high"></div>
-<div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}<p class="note">{t["disc"]}</p></div></article>
+<div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}{PR.cards(lang, a["slug"]["no"], PREFIX)}<p class="note">{t["disc"]}</p></div></article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
         urls.append(page(lang, f"art{i}", st, sd, body, art_img(i), data=data, kind="article"))
     ids = [a[1:] for a in x["anchors"]]
