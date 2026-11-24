@@ -233,3 +233,4 @@ main>:last-child:not(.band){padding-bottom:110px}
 .pcard .pdesc{flex:0 0 auto}
 .pcard .psay{flex:1;font-size:.88rem;line-height:1.45;color:var(--slate);background:var(--mist);border-radius:10px;padding:10px 12px}
 .pcard .psay a{color:var(--pine)}
+.pcard .pprice{margin:0;font-weight:600;color:var(--slate)}

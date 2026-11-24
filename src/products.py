@@ -12,20 +12,30 @@ from html import escape
 # so {url} is the URL-encoded path. Each Tradeinn shop is its own Daisycon campaign (si) with its own link id (li).
 TRADEINN = "https://partners.tradeinn.com/c/?si={si}&li={li}&wi=450174&ws={{sub}}&dl={{url}}"
 
+# Awin deeplinks (publisher 3160360): clickref = guide slug + language, so sales show per guide in Awin.
+AWIN = "https://www.awin1.com/cread.php?awinmid={mid}&awinaffid=3160360&clickref={{sub}}&ued={{url}}"
+
 SHOPS = {
     "trekkinn": dict(name="Trekkinn", link=TRADEINN.format(si=20618, li=1874240), langs=["en"], strip="https://www.tradeinn.com/"),
     "techinn": dict(name="Techinn", link=TRADEINN.format(si=20616, li=1874238), langs=["en"], strip="https://www.tradeinn.com/"),
+    # Awin shops: {url} = the full product URL, URL-encoded. Add a shop here only when it shows as "Joined" in Awin.
+    "outnorth": dict(name="Outnorth", link=AWIN.format(mid=18620), langs=["no"]),
 }
 
 T = "https://www.tradeinn.com/trekkinn/en/"
 E = "https://www.tradeinn.com/techinn/en/"
 OGL = "https://www.outdoorgearlab.com/reviews/"
 
-def P(shop, path, name, desc, say=None, src=None):
+def P(shop, path, name, desc, say=None, src=None, img=None, price=None, checked=None):
     """say: ("review", text) for what an independent reviewer found, ("buyers", text) for what customer reviews say,
     ("note", text) for a fact worth knowing.
     src: (site name, url) for a review. Text is our own summary, never a quote."""
-    return dict(shop=shop, url=(T if shop == "trekkinn" else E) + path + "/p", name=name, desc=desc, say=say, src=src)
+    """Tradeinn shops: path = slug/id (url and image built automatically). Other shops: path = the full product URL,
+    img = the product image URL from the shop's product feed (only if the programme allows feed images), price = a
+    display string such as "1 299 kr", checked = the date the price was checked ("2026-11-24"). Prices older than
+    14 days are hidden automatically, so a stale price never shows."""
+    url = path if path.startswith("http") else (T if shop == "trekkinn" else E) + path + "/p"
+    return dict(shop=shop, url=url, name=name, desc=desc, say=say, src=src, img=img, price=price, checked=checked)
 
 PRODUCTS = {
     "powerbank-kulde": [
@@ -113,18 +123,23 @@ PRODUCTS = {
 }
 
 
-def img(url):
-    """Tradeinn product image (same as in the product feed): /f/<first 5 digits of id>/<id>/<slug>.webp"""
+def img(p):
+    """The card image: the entry's own img, else the Tradeinn image built from the URL, else none."""
+    if p.get("img"):
+        return p["img"]
+    url = p["url"]
+    if "tradeinn.com/" not in url:
+        return None
     parts = url.rstrip("/").split("/")
     slug, pid = parts[-3], parts[-2]
     return f"https://www.tradeinn.com/f/{pid[:5]}/{pid}/{slug}.webp"
 
 
 L = {
-    "en": dict(h="Where to buy", btn="See price at {shop}", ad="Affiliate link", review="What reviewers say", notel="Good to know", buyers="What buyers say",
+    "en": dict(h="Where to buy", btn="See price at {shop}", ad="Affiliate link", review="What reviewers say", notel="Good to know", buyers="What buyers say", price="About {price} (checked {date})",
                note="We may earn a commission if you buy through these links. Prices include VAT for buyers in the EU. Buyers outside the EU, including Norway, may pay VAT, duty and fees on delivery."),
     "no": dict(h="Hvor kan du kjøpe", btn="Se pris hos {shop}", ad="Annonselenke", review="Dette sier testene", notel="Verdt å vite", buyers="Dette sier kjøperne",
-               note="Vi kan få provisjon hvis du kjøper via disse lenkene."),
+               note="Vi kan få provisjon hvis du kjøper via disse lenkene. Prisene kan ha endret seg siden vi sjekket dem.", price="Ca. {price} (sjekket {date})"),
 }
 
 
@@ -139,13 +154,22 @@ def cards(lang, slug_no, prefix=""):
         url = p["url"]
         target = url[len(s["strip"]):] if s.get("strip") and url.startswith(s["strip"]) else url
         href = s["link"].format(url=quote(target, safe=""), sub=f"{slug_no}-{lang}")
+        im = img(p)
+        pic = f'<img class="pimg" src="{escape(im)}" alt="{escape(p["name"])}" loading="lazy" width="400" height="400">' if im else ""
+        pr = ""
+        if p.get("price") and p.get("checked"):
+            import datetime as _d
+            age = (_d.date.today() - _d.date.fromisoformat(p["checked"])).days
+            if age <= 14:
+                d = _d.date.fromisoformat(p["checked"])
+                pr = f'<p class="pprice">{escape(t["price"].format(price=p["price"], date=f"{d.day}.{d.month}."))}</p>'
         say = ""
         if p["say"]:
             kind, text = p["say"]
             srcl = f' <a href="{escape(p["src"][1])}" target="_blank" rel="noopener">{escape(p["src"][0])}</a>' if p["src"] else ""
             say = f'<p class="psay"><strong>{t[{"review": "review", "buyers": "buyers"}.get(kind, "notel")]}:</strong> {escape(text)}{srcl}</p>'
-        out.append(f'<div class="pcard"><img class="pimg" src="{img(url)}" alt="{escape(p["name"])}" loading="lazy" width="400" height="400">'
-                   f'<h3>{escape(p["name"])}</h3><p class="pdesc">{escape(p["desc"])}</p>{say}'
+        out.append(f'<div class="pcard">{pic}'
+                   f'<h3>{escape(p["name"])}</h3><p class="pdesc">{escape(p["desc"])}</p>{pr}{say}'
                    f'<a class="pbtn" href="{escape(href)}" rel="sponsored nofollow noopener" target="_blank">{t["btn"].format(shop=s["name"])}</a>'
                    f'<span class="adlabel">{t["ad"]}</span></div>')
     return f'<section class="products"><h2>{t["h"]}</h2><div class="pgrid">{"".join(out)}</div><p class="pnote">{t["note"]}</p></section>'
