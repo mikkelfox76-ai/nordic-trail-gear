@@ -99,6 +99,10 @@ PRODUCTS = {
           "Light two-person dome that packs small, made for alpine trekking. Two entrances, about 2.7 kg, fly 3,000 mm.",
           ("review", "Swiss consumer programme Kassensturz rated it good in a test of two-person tents: waterproof, robust and with reasonable room for two."),
           ("SRF Kassensturz", "https://www.srf.ch/sendungen/kassensturz-espresso/tests/sport-freizeit-outdoor/camping-zelte-zweierzelte-im-test-undicht-und-kein-platz-fuers-gepaeck")),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/sydvang/sydvang-skaring-4-season-tent-haute-red", "Sydvang Skaring 4 Season",
+          "Tunneltelt for tre personer, laget for bruk hele året, med stormmatter og to romslige absider.",
+          ("note", "Sydvang er Outnorth og Fjellsports eget merke, og prisen er ofte lavere enn for tilsvarende telt fra kjente produsenter."),
+          ("Jeger.no", "https://www.jeger.no/jaktutstyr/telt/test-av-sydvang-skaring-ultralight")),
     ],
     "sovepose-temperatur": [
         P("trekkinn", "marmot-helium-m14404-sleeping-bag/139716678", "Marmot Helium",
@@ -109,6 +113,10 @@ PRODUCTS = {
           "Synthetic winter bag: comfort -11 °C, limit -18 °C. Weighs close to 3 kg.",
           ("review", "Villmarksbutikken tested it at a winter camp in Femundsmarka and named it the best budget pick: even warmth all night despite condensation. It is heavy and bulky, so best when you pull a sled."),
           ("Villmarksbutikken", "https://www.villmarksbutikken.net/turutstyr/vintersovepose/")),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/haglofs/haglofs-tarius-18-midnight-blue-tangerine", "Haglöfs Tarius -18",
+          "Syntetisk vinterpose: komfort -11 °C, grense -18 °C. Veier nær 3 kg.",
+          ("review", "Villmarksbutikken testet den på vinterleir i Femundsmarka og kåret den til beste budsjettvalg: jevn varme hele natten, selv med kondens i teltet."),
+          ("Villmarksbutikken", "https://www.villmarksbutikken.net/turutstyr/vintersovepose/"), price="1 659 kr", checked="2026-11-24"),
     ],
     "liggeunderlag-r-verdi": [
         P("trekkinn", "sea-to-summit-ether-light-xt-extreme-inflatable-mat/138043159", "Sea to Summit Ether Light XT Extreme",
@@ -119,6 +127,14 @@ PRODUCTS = {
           "Insulated air mat with an R-value of about 3 that packs small. For spring to autumn.",
           ("review", "OutdoorsMagic liked the warmth for its weight and how quickly it inflates and deflates."),
           ("OutdoorsMagic", "https://outdoorsmagic.com/article/sea-to-summit-ul-insulated-sleeping-mat-review/")),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/therm-a-rest/therm-a-rest-z-lite-sol-regular", "Therm-a-Rest Z Lite SOL",
+          "Sammenleggbart skumunderlag med R-verdi 2,0. Kan ikke punktere, og veier rundt 410 g.",
+          ("note", "Therm-a-Rest anbefaler det alene om sommeren og under et luftunderlag om vinteren, for ekstra varme og vern mot punktering."),
+          ("Therm-a-Rest", "https://www.thermarest.com/mattresses/fast-light/z-lite"), price="829 kr", checked="2026-11-24"),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/exped/exped-ultra-8r-m-greygoose-P490-8889", "Exped Ultra 8R",
+          "Isolert luftunderlag med R-verdi 8,8, laget for vinterturer og kalde netter på snø.",
+          ("note", "Med så høy R-verdi trenger du normalt ikke et ekstra skumunderlag under, selv i kulde."),
+          ("Exped", "https://www.expedusa.com/products/ultra-8r"), price="2 271 kr", checked="2026-11-24"),
     ],
 }
 
