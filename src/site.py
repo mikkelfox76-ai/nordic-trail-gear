@@ -102,7 +102,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=11">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=12">
 </head>
 <body class="{cls}">
 <header class="top"><div class="wrap">
