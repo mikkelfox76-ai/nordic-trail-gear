@@ -44,4 +44,7 @@ SEO = {
 "pakkeliste-vintertur": dict(
   no=("Pakkeliste for vintertur: alt i sekken | Nordic Trail Gear", "Pakkeliste for vintertur med film: klær, sikkerhetsutstyr, kart og kompass, mat og drikke. Dette skal alltid være med i sekken på fjellet."),
   en=("Winter hiking packing list: the gear | Nordic Trail Gear", "Winter hiking packing list with film: clothing, safety gear, map and compass, food and drink. What should always be in your pack in the mountains.")),
+"julegaver-til-turfolk": dict(
+  no=("Julegaver til turfolk: 8 ideer | Nordic Trail Gear", "Julegaver til turfolk fra under 300 til over 1500 kroner: ullsokker, hodelykt, termos, kokesett, powerbank og ullgenser. Dette bør du vite før du kjøper."),
+  en=("Gifts for hikers: ideas at every price | Nordic Trail Gear", "Gifts for hikers from under NOK 300 to over 1,500: wool socks, headlamp, flask, stove set, power bank and wool jacket. What to know before you buy.")),
 }

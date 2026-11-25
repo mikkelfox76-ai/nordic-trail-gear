@@ -234,3 +234,18 @@ main>:last-child:not(.band){padding-bottom:110px}
 .pcard .psay{flex:1;font-size:.88rem;line-height:1.45;color:var(--slate);background:var(--mist);border-radius:10px;padding:10px 12px}
 .pcard .psay a{color:var(--pine)}
 .pcard .pprice{margin:0;font-weight:600;color:var(--slate)}
+
+/* buying-guide comparison table */
+.picks{margin:36px 0 8px}
+.pk-wrap{overflow-x:auto;margin-top:14px;background:#fff;border-radius:18px;box-shadow:var(--soft)}
+.picks table{width:100%;border-collapse:collapse;font-size:.95rem}
+.picks th{text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--line)}
+.picks td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.picks tr:last-child td{border-bottom:0}
+.pk-pick{font-weight:700;color:var(--slate);white-space:nowrap}
+.pk-name{font-weight:600}
+.pk-price{white-space:nowrap}
+.pk-btn{display:inline-block;padding:8px 14px;border-radius:999px;font-weight:600;font-size:.9rem;white-space:nowrap;text-decoration:none;color:var(--slate);background:var(--signal)}
+.pk-btn:hover{background:var(--slate);color:#fff}
+.picks .adlabel{display:block;margin-top:4px}
+@media (max-width:640px){.picks thead{display:none}.picks tr{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 14px;border-bottom:1px solid var(--line)}.picks td{padding:0;border:0}.pk-pick{grid-column:1/-1}}

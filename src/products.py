@@ -26,7 +26,7 @@ T = "https://www.tradeinn.com/trekkinn/en/"
 E = "https://www.tradeinn.com/techinn/en/"
 OGL = "https://www.outdoorgearlab.com/reviews/"
 
-def P(shop, path, name, desc, say=None, src=None, img=None, price=None, checked=None):
+def P(shop, path, name, desc, say=None, src=None, img=None, price=None, checked=None, pick=None, spec=None):
     """say: ("review", text) for what an independent reviewer found, ("buyers", text) for what customer reviews say,
     ("note", text) for a fact worth knowing.
     src: (site name, url) for a review. Text is our own summary, never a quote."""
@@ -34,8 +34,11 @@ def P(shop, path, name, desc, say=None, src=None, img=None, price=None, checked=
     img = the product image URL from the shop's product feed (only if the programme allows feed images), price = a
     display string such as "1 299 kr", checked = the date the price was checked ("2026-11-24"). Prices older than
     14 days are hidden automatically, so a stale price never shows."""
+    """Buying guides: pick = a short label per language, e.g. {"no": "Best i kulda", "en": "Best in the cold"}, and
+    spec = the key figure per language, e.g. {"no": "350 lumen, 94 g", "en": "350 lumens, 94 g"}. Products with a pick
+    are listed in a comparison table near the top of the guide ("Våre valg"), in the order they appear here."""
     url = path if path.startswith("http") else (T if shop == "trekkinn" else E) + path + "/p"
-    return dict(shop=shop, url=url, name=name, desc=desc, say=say, src=src, img=img, price=price, checked=checked)
+    return dict(shop=shop, url=url, name=name, desc=desc, say=say, src=src, img=img, price=price, checked=checked, pick=pick, spec=spec)
 
 PRODUCTS = {
     "powerbank-kulde": [
@@ -199,6 +202,49 @@ PRODUCTS = {
           ("note", "HD- eller ED-glass reduserer fargekanter rundt motiver i motlys, noe du merker mest når du ser på fugler mot himmelen."),
           img="https://www.outnorth.com/assets/blobs/800q-01-107925-4c405cd340.png"),
     ],
+    "julegaver-til-turfolk": [
+        P("outnorth", "https://www.outnorth.com/no/varemerker/woolpower/woolpower-socks-400-black", "Woolpower Socks 400",
+          "Ullsokker med frotté i foten, 50 % merinoull. Middels skaft, laget i Sverige.",
+          ("note", "Merinoull holder på varmen selv når sokken blir litt fuktig. Ta en størrelse som passer tursko eller skistøvler."),
+          img="https://www.fjellsport.no/assets/blobs/woolpower-socks-400-black-749b863b38.jpeg", price="259 kr", checked="2026-11-25",
+          pick={"no": "Under 300 kr"}, spec={"no": "50 % merinoull, frotté"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/petzl/tikka-230017-214864-P481-3893", "Petzl Tikka",
+          "Hodelykt på 350 lumen og 94 gram, med opptil 110 timers brenntid på tre AAA-batterier eller Petzls oppladbare CORE-batteri.",
+          ("note", "Litiumbatterier i AAA-størrelse tåler kulde bedre enn alkaliske og er en fin ekstra liten gave."),
+          img="https://www.fjellsport.no/assets/blobs/e061ab02-tikka-highres-822649dc59.jpeg", price="425 kr", checked="2026-11-25",
+          pick={"no": "300–700 kr"}, spec={"no": "350 lumen, 94 g"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/stanley/stanley-the-legendary-classic-food-jar-spork-0-4l-black-2-0-P532-4956", "Stanley Legendary Classic Food Jar 0,4 L",
+          "Mattermos på 0,4 liter med spork, 340 gram. Holder maten varm i opptil sju timer.",
+          ("note", "Forvarm mattermosen med kokende vann i noen minutter før du fyller den, så holder den varmen lenger."),
+          img="https://www.fjellsport.no/assets/blobs/st10113530105-1-222428d4f5.png",
+          pick={"no": "300–700 kr"}, spec={"no": "0,4 L, 7 t varm"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/woolpower/woolpower-mittens-400-black", "Woolpower Mittens 400",
+          "Ullvotter i 70 % merinoull med frotté. Kan brukes alene eller som innervott under en vindtett skallvott.",
+          ("note", "Votter er varmere enn fingerhansker fordi fingrene deler på varmen."),
+          img="https://www.fjellsport.no/assets/blobs/mittens400-390822ddca.jpeg", price="499 kr", checked="2026-11-25",
+          pick={"no": "300–700 kr"}, spec={"no": "70 % merinoull"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/stanley/stanley-the-legendary-classic-bottle-0-94-l-hammertone-green-P481-7601", "Stanley Legendary Classic Bottle 0,94 L",
+          "Klassisk ståltermos på 940 ml og 639 gram. Holder drikken varm i opptil et døgn.",
+          ("note", "En termos på rundt en liter passer for to personer på dagstur."),
+          img="https://www.fjellsport.no/assets/blobs/web-png-square-theclassiclegendaryvacuumbottle1qt-hammertonegreen-front-65f04414aa.png", price="599 kr", checked="2026-11-25",
+          pick={"no": "300–700 kr"}, spec={"no": "0,94 L, 24 t varm"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/primus/primus-essential-trail-kit", "Primus Essential Trail Kit",
+          "Gassbrenner og 1-liters aluminiumskjele med lokk som også er stekepanne, 382 gram til sammen. Kjelen rommer en liten gasspatron når den pakkes.",
+          ("note", "Gass er ikke inkludert. Til vinterbruk bør du velge en gassblanding beregnet for kulde."),
+          img="https://www.fjellsport.no/assets/blobs/primus-essential-trail-kit-nocolour-009f32d2f0.jpeg",
+          pick={"no": "700–1500 kr"}, spec={"no": "382 g, 1 L kjele"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/biolite/biolite-charge-80-pd-grey-orange", "BioLite Charge 80 PD",
+          "Powerbank på 20 000 mAh med USB-C PD og to USB-A-utganger, rundt 450 gram.",
+          ("review", "T3 ga den sin anbefaling for robust bygg, stor kapasitet og at alle tre utgangene kan brukes samtidig. Minus for høy pris og at lampene bare viser fire nivåer."),
+          ("T3", "https://www.t3.com/reviews/biolite-charge-pd-80-portable-power-bank-review"),
+          img="https://www.outnorth.com/assets/blobs/biolite-charge-80-pd-grey-orange-89ec71131d.jpeg", price="999 kr", checked="2026-11-25",
+          pick={"no": "700–1500 kr"}, spec={"no": "20 000 mAh, ca. 450 g"}),
+        P("outnorth", "https://www.outnorth.com/no/varemerker/woolpower/woolpower-full-zip-jacket-400-forest-green", "Woolpower Full Zip Jacket 400",
+          "Ullgenser med hel glidelås i 400 g/m² ullfrotté, tommelhull og elastisk passform. Laget i Sverige.",
+          ("note", "Den er ikke vindtett, så den fungerer best som mellomlag under en skalljakke."),
+          img="https://www.fjellsport.no/assets/blobs/woolpower-full-zip-jacket-400-forest-green-1-eac35eaa00.jpeg", price="2 199 kr", checked="2026-11-25",
+          pick={"no": "Over 1500 kr"}, spec={"no": "400 g/m² ullfrotté"}),
+    ],
 }
 
 
@@ -215,33 +261,71 @@ def img(p):
 
 
 L = {
-    "en": dict(h="Where to buy", btn="See price at {shop}", ad="Affiliate link", review="What reviewers say", notel="Good to know", buyers="What buyers say", price="About {price} (checked {date})",
+    "en": dict(pk_h="Our picks", pk_cols=("Pick", "Product", "Key figures", "Price", ""), pk_btn="See price", pk_more="More about each product further down.",
+               h="Where to buy", btn="See price at {shop}", ad="Affiliate link", review="What reviewers say", notel="Good to know", buyers="What buyers say", price="About {price} (checked {date})",
                note="Affiliate links: we may earn a commission. Prices include VAT for buyers in the EU. Buyers outside the EU, including Norway, may pay VAT, duty and fees on delivery."),
-    "no": dict(h="Hvor kan du kjøpe", btn="Se pris hos {shop}", ad="Annonselenke", review="Dette sier testene", notel="Verdt å vite", buyers="Dette sier kjøperne",
+    "no": dict(pk_h="Våre valg", pk_cols=("Valg", "Produkt", "Nøkkeltall", "Pris", ""), pk_btn="Se pris", pk_more="Mer om hvert produkt lenger ned.",
+               h="Hvor kan du kjøpe", btn="Se pris hos {shop}", ad="Annonselenke", review="Dette sier testene", notel="Verdt å vite", buyers="Dette sier kjøperne",
                note="Annonselenker: vi kan få provisjon. Du betaler det samme.", price="Ca. {price} (sjekket {date})"),
 }
 
 
+def _items(lang, slug_no):
+    return [p for p in PRODUCTS.get(slug_no, []) if SHOPS[p["shop"]]["link"] and lang in SHOPS[p["shop"]]["langs"]]
+
+
+def _href(p, slug_no, lang):
+    s = SHOPS[p["shop"]]
+    url = p["url"]
+    target = url[len(s["strip"]):] if s.get("strip") and url.startswith(s["strip"]) else url
+    return s["link"].format(url=quote(target, safe=""), sub=f"{slug_no}-{lang}")
+
+
+def _fresh_price(p):
+    """(price, date) when the price was checked within 14 days, else None."""
+    if p.get("price") and p.get("checked"):
+        import datetime as _d
+        d = _d.date.fromisoformat(p["checked"])
+        if (_d.date.today() - d).days <= 14:
+            return p["price"], d
+    return None
+
+
+def picks(lang, slug_no, prefix=""):
+    """Comparison table of the products that have a pick label, shown near the top of a buying guide."""
+    items = [p for p in _items(lang, slug_no) if p.get("pick") and lang in p["pick"]]
+    if not items:
+        return ""
+    t = L[lang]
+    rows = []
+    for p in items:
+        fp = _fresh_price(p)
+        price = escape(fp[0]) if fp else "–"
+        spec = escape((p.get("spec") or {}).get(lang, ""))
+        rows.append(f'<tr><td class="pk-pick">{escape(p["pick"][lang])}</td><td class="pk-name">{escape(p["name"])}</td>'
+                    f'<td>{spec}</td><td class="pk-price">{price}</td>'
+                    f'<td><a class="pk-btn" href="{escape(_href(p, slug_no, lang))}" rel="sponsored nofollow noopener" target="_blank">{t["pk_btn"]}</a>'
+                    f'<span class="adlabel">{t["ad"]}</span></td></tr>')
+    head = "".join(f"<th>{c}</th>" for c in t["pk_cols"])
+    return (f'<section class="picks"><h2>{t["pk_h"]}</h2><div class="pk-wrap"><table><thead><tr>{head}</tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div><p class="pnote">{t["pk_more"]}</p></section>')
+
+
 def cards(lang, slug_no, prefix=""):
-    items = [p for p in PRODUCTS.get(slug_no, []) if SHOPS[p["shop"]]["link"] and lang in SHOPS[p["shop"]]["langs"]]
+    items = _items(lang, slug_no)
     if not items:
         return ""
     t = L[lang]
     out = []
     for p in items:
         s = SHOPS[p["shop"]]
-        url = p["url"]
-        target = url[len(s["strip"]):] if s.get("strip") and url.startswith(s["strip"]) else url
-        href = s["link"].format(url=quote(target, safe=""), sub=f"{slug_no}-{lang}")
+        href = _href(p, slug_no, lang)
         im = img(p)
         pic = f'<img class="pimg" src="{escape(im)}" alt="{escape(p["name"])}" loading="lazy" width="400" height="400">' if im else ""
         pr = ""
-        if p.get("price") and p.get("checked"):
-            import datetime as _d
-            age = (_d.date.today() - _d.date.fromisoformat(p["checked"])).days
-            if age <= 14:
-                d = _d.date.fromisoformat(p["checked"])
-                pr = f'<p class="pprice">{escape(t["price"].format(price=p["price"], date=f"{d.day}.{d.month}."))}</p>'
+        fp = _fresh_price(p)
+        if fp:
+            pr = f'<p class="pprice">{escape(t["price"].format(price=fp[0], date=f"{fp[1].day}.{fp[1].month}."))}</p>'
         say = ""
         if p["say"]:
             kind, text = p["say"]
