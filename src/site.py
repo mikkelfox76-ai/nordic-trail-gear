@@ -151,7 +151,7 @@ for lang in ("no", "en"):
         inner = rows(lang, idx, "full") if idx else f'<p class="note">{x["none"]}</p>'
         body = f'''<section class="banner">{bgvideo(lang, CATIMG[i])}
 <div class="wrap">{crumbs(lang, [(name, p[f"cat{i}"])])}<h1>{h1}</h1><p>{sub}</p></div></section>
-<section class="sec" style="padding-top:40px"><div class="wrap"><h2>{t["more_h"]}</h2>{inner}<p class="note">{t["disc"]}</p></div></section>'''
+<section class="sec" style="padding-top:40px"><div class="wrap"><h2>{t["more_h"]}</h2>{inner}</div></section>'''
         urls.append(page(lang, f"cat{i}", f"{h1} – Nordic Trail Gear", sub, body, CATIMG[i], data=ld(crumb_ld(lang, [(name, p[f"cat{i}"])]))))
     body = f'''<section class="plain"><div class="wrap">{crumbs(lang, [(t["nav"][4], p["guides"])])}<h1>{x["all_h"]}</h1>{rows(lang, newest, "full")}</div></section>'''
     urls.append(page(lang, "guides", f'{x["all_h"]} – Nordic Trail Gear', x["desc"], body, data=ld(crumb_ld(lang, [(t["nav"][4], p["guides"])]))))
@@ -174,7 +174,7 @@ for lang in ("no", "en"):
         body = f'''<article class="article"><header><div class="wrap">{crumbs(lang, [(t["nav"][c], p[f"cat{c}"]), (t["nav"][4], p["guides"])])}
 <h1>{d["title"]}</h1><p class="date">{x["date"]}</p><p class="lede">{d["lead"]}</p></div></header>
 <div class="wrap"><img class="lead-img" src="{src(art_img(i))}" alt="" width="1344" height="756" fetchpriority="high"></div>
-<div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}{PR.cards(lang, a["slug"]["no"], PREFIX)}<p class="note">{t["disc"]}</p></div></article>
+<div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{secs}{PR.cards(lang, a["slug"]["no"], PREFIX)}</div></article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
         urls.append(page(lang, f"art{i}", st, sd, body, art_img(i), data=data, kind="article"))
     ids = [a[1:] for a in x["anchors"]]

@@ -216,9 +216,9 @@ def img(p):
 
 L = {
     "en": dict(h="Where to buy", btn="See price at {shop}", ad="Affiliate link", review="What reviewers say", notel="Good to know", buyers="What buyers say", price="About {price} (checked {date})",
-               note="We may earn a commission if you buy through these links. Prices include VAT for buyers in the EU. Buyers outside the EU, including Norway, may pay VAT, duty and fees on delivery."),
+               note="Affiliate links: we may earn a commission. Prices include VAT for buyers in the EU. Buyers outside the EU, including Norway, may pay VAT, duty and fees on delivery."),
     "no": dict(h="Hvor kan du kjøpe", btn="Se pris hos {shop}", ad="Annonselenke", review="Dette sier testene", notel="Verdt å vite", buyers="Dette sier kjøperne",
-               note="Vi kan få provisjon hvis du kjøper via disse lenkene. Prisene kan ha endret seg siden vi sjekket dem.", price="Ca. {price} (sjekket {date})"),
+               note="Annonselenker: vi kan få provisjon. Du betaler det samme.", price="Ca. {price} (sjekket {date})"),
 }
 
 
