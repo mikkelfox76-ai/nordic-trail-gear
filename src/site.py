@@ -92,7 +92,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <link rel="icon" href="{PREFIX}/favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
-<meta property="og:image" content="{BASE}{src(image)}">
+<meta property="og:image" content="{BASE}{PREFIX}/img/{image}.jpg">
 <meta property="og:url" content="{BASE}{p[key]}">
 <meta property="og:type" content="{kind}">
 <meta property="og:site_name" content="Nordic Trail Gear">
