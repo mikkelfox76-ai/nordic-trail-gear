@@ -52,9 +52,11 @@ def bgvideo(lang, name):
             f'<button class="vtoggle" type="button" data-pause="{e["pause"]}" data-play="{e["play"]}">{e["pause"]}</button>')
 JS = """<script>(()=>{const m=matchMedia('(prefers-reduced-motion: reduce)');document.querySelectorAll('video.bg').forEach(v=>{const b=v.parentElement.querySelector('.vtoggle');if(m.matches){v.removeAttribute('autoplay');v.pause()}const set=()=>{b.textContent=v.paused?b.dataset.play:b.dataset.pause};b.addEventListener('click',()=>{v.paused?v.play():v.pause()});v.addEventListener('play',set);v.addEventListener('pause',set);set()});if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!m.matches){document.querySelectorAll('.tile,.row,.feature').forEach(c=>{const k=c.classList.contains('feature')?3:c.classList.contains('row')?6:9,s=(p,v)=>c.style.setProperty(p,v);c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;s('--rx',-y*k+'deg');s('--ry',x*k+'deg');s('--mx',x*100+50+'%');s('--my',y*100+50+'%');s('--px',-x*16+'px');s('--py',-y*16+'px')});c.addEventListener('pointerleave',()=>['--rx','--ry','--px','--py'].forEach(p=>c.style.removeProperty(p)))})}})()</script>"""
 
+REDIR = """<script>(function(){try{var n=navigator,l=((n.languages&&n.languages[0])||n.language||"").toLowerCase(),r=document.referrer;if(/bot|crawl|spider|slurp|lighthouse/i.test(n.userAgent))return;if(r&&r.indexOf(location.host)>-1)return;if(sessionStorage.getItem("ntg-lang"))return;if(!/^(nb|no|nn)/.test(l)){location.replace("/en/")}else{sessionStorage.setItem("ntg-lang","no")}}catch(e){}})()</script>"""
+
 def paths(lang):
     x = X[lang]; r = PREFIX + x["root"]
-    p = {"home": r, "guides": f'{r}{x["guides"]}/', "about": f'{r}{x["about"]}/'}
+    p = {"home": PREFIX + "/" if lang == "no" else r, "guides": f'{r}{x["guides"]}/', "about": f'{r}{x["about"]}/'}
     for i, c in enumerate(x["cats"]): p[f"cat{i}"] = f"{r}{c}/"
     for i, a in enumerate(ARTS): p[f"art{i}"] = f'{r}{x["guides"]}/{a["slug"][lang]}/'
     return p
@@ -88,7 +90,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <link rel="canonical" href="{BASE}{p[key]}">
 <link rel="alternate" hreflang="nb" href="{BASE}{no[key]}">
 <link rel="alternate" hreflang="en" href="{BASE}{en[key]}">
-<link rel="alternate" hreflang="x-default" href="{BASE}{en[key]}">
+<link rel="alternate" hreflang="x-default" href="{BASE}{(no if key == "home" else en)[key]}">{REDIR if (lang == "no" and key == "home") else ""}
 <link rel="icon" href="{PREFIX}/favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
@@ -180,7 +182,7 @@ for lang in ("no", "en"):
     ids = [a[1:] for a in x["anchors"]]
     secs = "".join((f'<h1>{h}</h1><p style="margin-top:18px">{txt}</p>' if k == 0 else f'<h2 id="{ids[k]}">{h}</h2><p>{txt}</p>') for k, (h, txt) in enumerate(x["abt"]))
     body = f'<section class="plain"><div class="wrap narrow body" style="padding-top:0">{crumbs(lang, [(x["foot"][0], p["about"])])}{secs}</div></section>'
-    urls.append(page(lang, "about", f'{x["abt"][0][0]}', x["abt"][0][1][:150], body))
+    urls.append(page(lang, "about", ("Om oss" if lang == "no" else "About us") + " – Nordic Trail Gear", x["abt"][0][1][:150], body))
 
 # contour-line pattern for the dark band
 rings = []
@@ -195,7 +197,8 @@ open(OUT + "/img/contour.svg", "w").write(f'<svg xmlns="http://www.w3.org/2000/s
 open(OUT + "/img/contour-dark.svg", "w").write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 520" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1F5C4A" stroke-opacity=".13" stroke-width="1.2">{"".join(rings)}</g></svg>')
 
 open(OUT + "/.nojekyll", "w").write("")
-open(OUT + "/index.html", "w").write('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Nordic Trail Gear</title><meta name="viewport" content="width=device-width, initial-scale=1"><script>location.replace(/^(nb|no|nn)/i.test(navigator.language||"")?"no/":"en/")</script><noscript><meta http-equiv="refresh" content="0; url=en/"></noscript></head><body><a href="en/">English</a> · <a href="no/">Norsk</a></body></html>')
+os.makedirs(OUT + "/no", exist_ok=True)
+open(OUT + "/no/index.html", "w").write(f'<!doctype html><html lang="nb"><head><meta charset="utf-8"><title>Nordic Trail Gear</title><link rel="canonical" href="{BASE}{PREFIX}/"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={PREFIX}/"></head><body><a href="{PREFIX}/">Nordic Trail Gear</a></body></html>')
 open(OUT + "/sitemap.xml", "w").write('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{dates.get(u, TODAY)}</lastmod></url>" for u in urls) + "</urlset>")
 open(OUT + "/robots.txt", "w").write(f"User-agent: *\nAllow: /\nSitemap: {BASE}{PREFIX}/sitemap.xml\n")
 print(len(urls), "pages")
