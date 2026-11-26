@@ -1,6 +1,6 @@
 # Site-wide texts per language (URLs, category intros, footer, about page).
 X = {
- "no": dict(root="/no/", cats=["tur-og-camping", "klaer-og-sko", "elektronikk", "jakt-og-fiske"], guides="guider", about="om",
+ "no": dict(root="/no/", cats=["tur-og-camping", "klaer-og-sko", "elektronikk", "jakt-og-fiske"], guides="guider", about="om", shop="butikk", shop_n="Butikk", shop_title="Butikk: turutstyr fra nettbutikkene vi samarbeider med",
   art="hodelykt-vinter", soon="Kommer snart", none="Guider i denne kategorien kommer snart.", date="Oppdatert 18. november 2026",
   all_h="Alle guider", desc="Guider til turutstyr, klær og elektronikk for nordisk friluftsliv.",
   subs=["Telt, soveposer og kokeutstyr for alt fra helgetur til langtur.",
@@ -8,10 +8,10 @@ X = {
         "Kikkerter, kniver og fiskeutstyr til sesongen som kommer."],
   foot=["Om oss", "Annonsemerking", "Personvern", "Kontakt"], anchors=["", "#annonsemerking", "#personvern", "#kontakt"],
   abt=[("Om Nordic Trail Gear", "Nordic Trail Gear lager guider til utstyr for friluftsliv i nordisk klima: turutstyr, klær og elektronikk. Vi sammenligner spesifikasjoner, priser og omtaler, og forklarer hva som betyr noe når du skal velge. Vi tester ikke utstyret selv. Vi går gjennom tester og omtaler fra dem som har brukt det, og oppsummerer hva de sier."),
-         ("Annonsemerking", "Nettstedet finansieres med annonselenker. Når du klikker på en slik lenke og handler i nettbutikken, kan vi få provisjon. Prisen du betaler er den samme. Annonselenker er merket ved hver knapp, og provisjonen bestemmer ikke hva vi skriver."),
+         ("Annonsemerking", "Nettstedet finansieres med annonselenker. Når du klikker på en slik lenke og handler i nettbutikken, kan vi få provisjon. Prisen du betaler er den samme. Vi selger ikke varer selv: nettbutikken du handler hos er selger og håndterer levering, angrerett, retur og reklamasjon. Annonselenker er merket ved hver knapp, og provisjonen bestemmer ikke hva vi skriver."),
          ("Personvern", "Vi samler ikke inn personopplysninger på dette nettstedet og bruker ikke egne sporingsverktøy. Når du klikker på en annonselenke, kan nettbutikken og annonsenettverket sette informasjonskapsler for å registrere at kjøpet kom herfra. Det reguleres av deres egne personvernerklæringer."),
          ("Kontakt", 'Spørsmål, rettelser eller forslag til guider? Send e-post til <a href="mailto:nordictrailgear@gmail.com">nordictrailgear@gmail.com</a>.')]),
- "en": dict(root="/en/", cats=["hiking-camping", "clothing-footwear", "electronics", "hunting-fishing"], guides="guides", about="about",
+ "en": dict(root="/en/", cats=["hiking-camping", "clothing-footwear", "electronics", "hunting-fishing"], guides="guides", about="about", shop="shop", shop_n="Shop", shop_title="Shop: outdoor gear from the stores we work with",
   art="winter-headlamp", soon="Coming soon", none="Guides in this category are coming soon.", date="Updated 18 November 2026",
   all_h="All guides", desc="Guides to hiking gear, clothing and electronics for Nordic outdoor life.",
   subs=["Tents, sleeping bags and stoves for anything from a weekend out to a long trek.",
@@ -19,7 +19,7 @@ X = {
         "Binoculars, knives and tackle for the season ahead."],
   foot=["About", "Affiliate disclosure", "Privacy", "Contact"], anchors=["", "#disclosure", "#privacy", "#contact"],
   abt=[("About Nordic Trail Gear", "Nordic Trail Gear publishes guides to outdoor gear for Nordic conditions: hiking equipment, clothing and electronics. We compare specs, prices and reviews, and explain what matters when you choose. We do not test the gear ourselves. We go through tests and reviews from people who have used it, and sum up what they say."),
-         ("Affiliate disclosure", "This site is funded by affiliate links. When you click one and buy from the store, we may earn a commission. The price you pay is the same. Affiliate links are labelled next to each button, and the commission does not decide what we write."),
+         ("Affiliate disclosure", "This site is funded by affiliate links. When you click one and buy from the store, we may earn a commission. The price you pay is the same. We do not sell anything ourselves: the store you buy from is the seller and handles delivery, cancellation, returns and complaints. Affiliate links are labelled next to each button, and the commission does not decide what we write."),
          ("Privacy", "We do not collect personal data on this site and use no tracking tools of our own. When you click an affiliate link, the store and the affiliate network may set cookies to record that the purchase came from here. That is covered by their own privacy policies."),
          ("Contact", 'Questions, corrections or ideas for guides? Email <a href="mailto:nordictrailgear@gmail.com">nordictrailgear@gmail.com</a>.')]),
 }

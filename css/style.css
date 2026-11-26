@@ -249,3 +249,7 @@ main>:last-child:not(.band){padding-bottom:110px}
 .pk-btn:hover{background:var(--slate);color:#fff}
 .picks .adlabel{display:block;margin-top:4px}
 @media (max-width:640px){.picks thead{display:none}.picks tr{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 14px;border-bottom:1px solid var(--line)}.picks td{padding:0;border:0}.pk-pick,.pk-name{grid-column:1/-1}.picks td:nth-child(3),.picks td:nth-child(4){grid-column:1;color:var(--muted)}.picks td:nth-child(5){grid-column:2;grid-row:3/5;align-self:center;text-align:center}}
+.shopinfo{margin:24px 0 8px;padding:20px 22px;background:#fff;border-radius:18px;box-shadow:var(--soft);max-width:760px}
+.shopinfo h2{margin:0 0 8px;font-size:1.15rem}
+.shopinfo p{margin:8px 0 0}
+.shopgrp{margin-top:40px}

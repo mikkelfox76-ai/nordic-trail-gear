@@ -20,7 +20,11 @@ SHOPS = {
     "techinn": dict(name="Techinn", link=TRADEINN.format(si=20616, li=1874238), langs=["en"], strip="https://www.tradeinn.com/"),
     # Awin shops: {url} = the full product URL, URL-encoded. Add a shop here only when it shows as "Joined" in Awin.
     "outnorth": dict(name="Outnorth", link=AWIN.format(mid=18620), langs=["no"]),
+    "db": dict(name="Db", link=AWIN.format(mid=109844), langs=["no"]),
 }
+
+# Products shown only in the shop (not under a guide): key -> heading per language. Their clickref is "<key>-<lang>".
+SHOP_ONLY = {"sekker": {"no": "Sekker og bagger", "en": "Backpacks and bags"}}
 
 T = "https://www.tradeinn.com/trekkinn/en/"
 E = "https://www.tradeinn.com/techinn/en/"
@@ -40,7 +44,24 @@ def P(shop, path, name, desc, say=None, src=None, img=None, price=None, checked=
     url = path if path.startswith("http") else (T if shop == "trekkinn" else E) + path + "/p"
     return dict(shop=shop, url=url, name=name, desc=desc, say=say, src=src, img=img, price=price, checked=checked, pick=pick, spec=spec)
 
+DBJ = "https://dbjourney.com/en-no/products/"
+DBI = "https://dbjourney.com/cdn/shop/files/"
+
 PRODUCTS = {
+    "sekker": [
+        P("db", DBJ + "backcountry-backpack-25l-white-noise", "Db Backcountry Backpack 25L",
+          "Toppturssekk på 25 liter og 1,35 kg, med feste for ski eller brett, isøks og hjelm, og eget rom for skredutstyr.",
+          ("note", "Laget av resirkulert nylon. Produsenten oppgir ikke at sekken er vanntett, så ha viktige ting i en tørrsekk."),
+          img=DBI + "Backcountry_Backpack_25L_White_Noise_1000181014401_1.png?width=600", price="1 999 kr", checked="2026-11-26"),
+        P("db", DBJ + "hugger-backpack-30l-black-out", "Db Hugger Backpack 30L",
+          "Sekk på 30 liter og 1,23 kg til reise og hverdag, med polstret rom for PC opptil 16 tommer. Passer som håndbagasje.",
+          ("note", "Tåler lett regn ifølge produsenten, men er ikke helt vanntett. Mer reisesekk enn tursekk."),
+          img=DBI + "Hugger_30L_Black_Out_New_Image_11.png?width=600", price="2 299 kr", checked="2026-11-26"),
+        P("db", DBJ + "ramverk-backpack-21l-black-out", "Db Ramverk Backpack 21L",
+          "Kompakt sekk på 21 liter og 1,08 kg med polstret PC-rom som åpnes fra ryggsiden.",
+          ("note", "Til pendling og dagsturer i byen heller enn i fjellet."),
+          img=DBI + "Ramverk_Backpack_21L_Black_Out_1.png?width=600", price="2 199 kr", checked="2026-11-26"),
+    ],
     "powerbank-kulde": [
         P("techinn", "anker-a1388g11-power-bank-10000mah/141770458", "Anker Power Bank 10,000 mAh (22.5 W)",
           "USB-C and USB-A ports, 22.5 W output and about 250 g. Enough for roughly two phone charges.",
@@ -311,28 +332,63 @@ def picks(lang, slug_no, prefix=""):
             f'<tbody>{"".join(rows)}</tbody></table></div><p class="pnote">{t["pk_more"]}</p></section>')
 
 
+def _card(p, slug_no, lang):
+    t, s = L[lang], SHOPS[p["shop"]]
+    href = _href(p, slug_no, lang)
+    im = img(p)
+    pic = f'<img class="pimg" src="{escape(im)}" alt="{escape(p["name"])}" loading="lazy" width="400" height="400">' if im else ""
+    pr = ""
+    fp = _fresh_price(p)
+    if fp:
+        pr = f'<p class="pprice">{escape(t["price"].format(price=fp[0], date=f"{fp[1].day}.{fp[1].month}."))}</p>'
+    say = ""
+    if p["say"]:
+        kind, text = p["say"]
+        srcl = f' <a href="{escape(p["src"][1])}" target="_blank" rel="noopener">{escape(p["src"][0])}</a>' if p["src"] else ""
+        say = f'<p class="psay"><strong>{t[{"review": "review", "buyers": "buyers"}.get(kind, "notel")]}:</strong> {escape(text)}{srcl}</p>'
+    return (f'<div class="pcard">{pic}'
+            f'<h3>{escape(p["name"])}</h3><p class="pdesc">{escape(p["desc"])}</p>{pr}{say}'
+            f'<a class="pbtn" href="{escape(href)}" rel="sponsored nofollow noopener" target="_blank">{t["btn"].format(shop=s["name"])}</a>'
+            f'<span class="adlabel">{t["ad"]}</span></div>')
+
+
 def cards(lang, slug_no, prefix=""):
     items = _items(lang, slug_no)
     if not items:
         return ""
     t = L[lang]
-    out = []
-    for p in items:
-        s = SHOPS[p["shop"]]
-        href = _href(p, slug_no, lang)
-        im = img(p)
-        pic = f'<img class="pimg" src="{escape(im)}" alt="{escape(p["name"])}" loading="lazy" width="400" height="400">' if im else ""
-        pr = ""
-        fp = _fresh_price(p)
-        if fp:
-            pr = f'<p class="pprice">{escape(t["price"].format(price=fp[0], date=f"{fp[1].day}.{fp[1].month}."))}</p>'
-        say = ""
-        if p["say"]:
-            kind, text = p["say"]
-            srcl = f' <a href="{escape(p["src"][1])}" target="_blank" rel="noopener">{escape(p["src"][0])}</a>' if p["src"] else ""
-            say = f'<p class="psay"><strong>{t[{"review": "review", "buyers": "buyers"}.get(kind, "notel")]}:</strong> {escape(text)}{srcl}</p>'
-        out.append(f'<div class="pcard">{pic}'
-                   f'<h3>{escape(p["name"])}</h3><p class="pdesc">{escape(p["desc"])}</p>{pr}{say}'
-                   f'<a class="pbtn" href="{escape(href)}" rel="sponsored nofollow noopener" target="_blank">{t["btn"].format(shop=s["name"])}</a>'
-                   f'<span class="adlabel">{t["ad"]}</span></div>')
+    out = [_card(p, slug_no, lang) for p in items]
     return f'<section class="products"><h2>{t["h"]}</h2><div class="pgrid">{"".join(out)}</div><p class="pnote">{t["note"]}</p></section>'
+
+SHOP_L = {
+    "no": dict(lead="Utvalgte produkter fra guidene våre, samlet på ett sted. Du handler direkte hos nettbutikken.",
+               resp_h="Hvem du handler hos",
+               resp="Nordic Trail Gear selger ikke varer selv. Når du klikker «Se pris», kommer du til nettbutikken, og det er nettbutikken som er selger. "
+                    "Bestilling, betaling, levering, angrerett, retur og reklamasjon avtaler du med butikken, og spørsmål om et kjøp sendes dit.",
+               shops="Butikker", count="{n} produkter"),
+    "en": dict(lead="Selected products from our guides, gathered in one place. You buy directly from the store.",
+               resp_h="Who you buy from",
+               resp="Nordic Trail Gear does not sell anything itself. When you click “See price”, you go to the store, and the store is the seller. "
+                    "Ordering, payment, delivery, cancellation, returns and complaints are between you and the store, so send any questions about a purchase there.",
+               shops="Stores", count="{n} products"),
+}
+
+
+def shop(lang, groups):
+    """The shop page: every product from the guides, grouped. groups = [(heading, [guide slugs])]. Each product appears once."""
+    t, s = L[lang], SHOP_L[lang]
+    seen, secs, names = set(), [], set()
+    for heading, slugs in groups:
+        out = []
+        for slug in slugs:
+            for p in _items(lang, slug):
+                if p["url"] in seen:
+                    continue
+                seen.add(p["url"]); names.add(SHOPS[p["shop"]]["name"])
+                out.append(_card(p, slug, lang))
+        if out:
+            secs.append(f'<section class="products shopgrp"><h2>{escape(heading)}</h2><div class="pgrid">{"".join(out)}</div></section>')
+    intro = (f'<p class="lede">{s["lead"]}</p><div class="shopinfo"><h2>{s["resp_h"]}</h2><p>{s["resp"]}</p>'
+             f'<p><strong>{s["shops"]}:</strong> {escape(", ".join(sorted(names)))} · {s["count"].format(n=len(seen))}</p>'
+             f'<p class="pnote">{t["note"]}</p></div>')
+    return intro + "".join(secs)

@@ -56,7 +56,7 @@ REDIR = """<script>(function(){try{var n=navigator,l=((n.languages&&n.languages[
 
 def paths(lang):
     x = X[lang]; r = PREFIX + x["root"]
-    p = {"home": PREFIX + "/" if lang == "no" else r, "guides": f'{r}{x["guides"]}/', "about": f'{r}{x["about"]}/'}
+    p = {"home": PREFIX + "/" if lang == "no" else r, "guides": f'{r}{x["guides"]}/', "about": f'{r}{x["about"]}/', "shop": f'{r}{x["shop"]}/'}
     for i, c in enumerate(x["cats"]): p[f"cat{i}"] = f"{r}{c}/"
     for i, a in enumerate(ARTS): p[f"art{i}"] = f'{r}{x["guides"]}/{a["slug"][lang]}/'
     return p
@@ -77,7 +77,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
     o = paths("en" if lang == "no" else "no")
     no, en = (p, o) if lang == "no" else (o, p)
     cur = lambda k: ' aria-current="page"' if key == k else ""
-    nav = "".join(f'<a href="{p[f"cat{i}"]}"{cur(f"cat{i}")}>{t["nav"][i]}</a>' for i in range(4)) + f'<a href="{p["guides"]}"{cur("guides")}>{t["nav"][4]}</a>'
+    nav = "".join(f'<a href="{p[f"cat{i}"]}"{cur(f"cat{i}")}>{t["nav"][i]}</a>' for i in range(4)) + f'<a href="{p["guides"]}"{cur("guides")}>{t["nav"][4]}</a><a href="{p["shop"]}"{cur("shop")}>{x["shop_n"]}</a>'
     catl = "".join(f'<li><a href="{p[f"cat{i}"]}">{t["nav"][i]}</a></li>' for i in range(4))
     info = "".join(f'<li><a href="{p["about"]}{a}">{n}</a></li>' for n, a in zip(x["foot"], x["anchors"]))
     doc = f'''<!doctype html>
@@ -104,7 +104,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="{PREFIX}/css/style.css?v=12">
+<link rel="stylesheet" href="{PREFIX}/css/style.css?v=13">
 </head>
 <body class="{cls}">
 <header class="top"><div class="wrap">
@@ -118,7 +118,7 @@ def page(lang, key, title, desc, body, image="hero", cls="", data="", kind="webs
 <footer class="foot"><div class="wrap">
 <div><a class="brand" href="{p["home"]}">{MARK}Nordic Trail Gear</a><p>{t["disc"]}</p></div>
 <div><h2>{t["cats_h"]}</h2><ul>{catl}</ul></div>
-<div><h2>{e["site"]}</h2><ul><li><a href="{p["guides"]}">{x["all_h"]}</a></li>{info}<li><a href="https://www.facebook.com/profile.php?id=61596897741938" rel="me noopener">Facebook</a></li></ul></div>
+<div><h2>{e["site"]}</h2><ul><li><a href="{p["guides"]}">{x["all_h"]}</a></li><li><a href="{p["shop"]}">{x["shop_n"]}</a></li>{info}<li><a href="https://www.facebook.com/profile.php?id=61596897741938" rel="me noopener">Facebook</a></li></ul></div>
 </div></footer>
 {JS}
 </body>
@@ -179,6 +179,10 @@ for lang in ("no", "en"):
 <div class="wrap narrow body"><section class="short"><h2>{t["short_h"]}</h2><ul>{short}</ul></section>{PR.picks(lang, a["slug"]["no"], PREFIX)}{secs}{PR.cards(lang, a["slug"]["no"], PREFIX)}</div></article>
 <section class="sec"><div class="wrap"><h2>{e["more"]}</h2>{rows(lang, rel)}</div></section>'''
         urls.append(page(lang, f"art{i}", st, sd, body, art_img(i), data=data, kind="article"))
+    groups = [(t["cats"][c][0], [a["slug"]["no"] for a in ARTS if a["cat"] == c]) for c in range(4)]
+    groups += [(h[lang], [k]) for k, h in PR.SHOP_ONLY.items()]
+    body = f'<section class="plain"><div class="wrap">{crumbs(lang, [(x["shop_n"], p["shop"])])}<h1>{x["shop_n"]}</h1>{PR.shop(lang, groups)}</div></section>'
+    urls.append(page(lang, "shop", f'{x["shop_title"]} – Nordic Trail Gear', PR.SHOP_L[lang]["lead"], body, data=ld(crumb_ld(lang, [(x["shop_n"], p["shop"])]))))
     ids = [a[1:] for a in x["anchors"]]
     secs = "".join((f'<h1>{h}</h1><p style="margin-top:18px">{txt}</p>' if k == 0 else f'<h2 id="{ids[k]}">{h}</h2><p>{txt}</p>') for k, (h, txt) in enumerate(x["abt"]))
     body = f'<section class="plain"><div class="wrap narrow body" style="padding-top:0">{crumbs(lang, [(x["foot"][0], p["about"])])}{secs}</div></section>'
