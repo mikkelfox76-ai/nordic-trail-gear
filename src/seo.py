@@ -47,4 +47,7 @@ SEO = {
 "julegaver-til-turfolk": dict(
   no=("Julegaver til turfolk: 8 ideer | Nordic Trail Gear", "Julegaver til turfolk fra under 300 til over 1500 kroner: ullsokker, hodelykt, termos, kokesett, powerbank og ullgenser. Dette bør du vite før du kjøper."),
   en=("Gifts for hikers: ideas at every price | Nordic Trail Gear", "Gifts for hikers from under NOK 300 to over 1,500: wool socks, headlamp, flask, stove set, power bank and wool jacket. What to know before you buy.")),
+"vinter-tursko": dict(
+  no=("Vinter tursko: varme, grep og passform | Nordic Trail Gear", "Vinter tursko: hvor mye isolasjon du trenger, membran og svette, grep på snø og is, og passform med tykke ullsokker. Dette bør du sjekke før du kjøper."),
+  en=("Winter hiking shoes: warmth, grip, fit | Nordic Trail Gear", "Winter hiking shoes: how much insulation you need, membranes and sweat, grip on snow and ice, and fit with thick wool socks. What to check before buying.")),
 }
